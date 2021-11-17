@@ -7,6 +7,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import  ViagemForm  from './screens/ViagemForm'
 import  OrigemPesquisa  from './screens/OrigemPesquisa'
 import  DestinoPesquisa  from './screens/DestinoPesquisa'
+import Viagens from './screens/Viagens'
+import Assentos from './screens/Assentos';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +26,12 @@ export default () => {
         <Stack.Screen
         name='Pesquisa de Destino'
         component={DestinoPesquisa}/>
+        <Stack.Screen
+        name='Viagens'
+        component={Viagens}/>
+        <Stack.Screen
+        name='Assentos'
+        component={Assentos}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

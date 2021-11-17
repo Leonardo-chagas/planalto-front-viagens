@@ -94,9 +94,18 @@ export default function ViagemForm({navigation, route}) {
     }})
   }
 
-  const Buscar = () => {
+  const Buscar = async () => {
     if(origem && destino && dataIda){
-
+      const req = await fetch('http://52.87.215.20:5000/trip');
+      const json = await req.json();
+      const viagens = []
+      json.trips.forEach(item => {
+        if(item.origin.name == origem && item.destination.name == destino){
+          viagens.push({ida:item.tripdate, assentos:32, preco:item.price, id:item.bus.id});
+        }
+      });
+      //viagens = [{ida:'12/03/2021',assentos:32, preco:102.09}];
+      navigation.navigate('Viagens', {viagens: viagens})
     }
     else{
 
