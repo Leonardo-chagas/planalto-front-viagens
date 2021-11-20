@@ -75,8 +75,16 @@ const ItemArea = styled.TouchableHighlight`
 export default function Viagens({navigation, route}) {
     const [viagens, setViagens] = useState(route.params.viagens);
 
-    const ComprarViagem = (viagem) => {
-      navigation.navigate('Assentos', {viagemID: viagem});
+    const ComprarViagem = async (id) => {
+      var busSeats = [];
+      const req = await fetch('http://52.87.215.20:5000/seat');
+      const json = await req.json();
+      json.seats.forEach(item => {
+        if(item.bus_id == id){
+          busSeats.push({name:item.name});
+      }
+    });
+      navigation.navigate('Assentos', {seats: busSeats});
     }
 
     return (

@@ -108,7 +108,7 @@ export default function ViagemForm({navigation, route}) {
       navigation.navigate('Viagens', {viagens: viagens})
     }
     else{
-
+      alert('Preencha os campos obrigatórios');
     }
   }
 

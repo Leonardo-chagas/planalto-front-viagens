@@ -75,20 +75,18 @@ flex-direction: row;
 `;
 
 export default function Assentos({navigation, route}) {
-    const [viagemID, setViagemID] = useState(route.params.viagemID);
+    const [busSeats, setBusSeats] = useState(route.params.seats);
     var seats = [];
-    var index = 1
+    var index = 0;
+    console.log(busSeats);
 
-    const req = await fetch('http://52.87.215.20:5000/trip');
-    const json = await req.json();
-    json.seates.forEach(item => {
-      
-    });
-    
-      for(var i=0; i<10; i++){
+    const seatsLength = busSeats.length;
+
+      for(var i=0; i<seatsLength/4; i++){
         var row = [];
         var passou = false;
-        for(var seat=index; seat<index+4; seat++){
+
+        for(var seat=index; seat<index+3; seat++){
           if(seat == index+2 && !passou){
             row.push(<View>
               <Text style={{paddingRight:30, paddingLeft:30}}></Text>
@@ -98,7 +96,7 @@ export default function Assentos({navigation, route}) {
           }
           else{
             row.push(<Seat onPress={() => FazerReserva()}>
-              <Text>{seat}</Text>
+              <Text>{busSeats[seat].name}</Text>
             </Seat>);
           }
         }
@@ -108,8 +106,19 @@ export default function Assentos({navigation, route}) {
         index = index+4;
       }
 
-      const FazerReserva = () => {
+      const FazerReserva = async () => {
+        const req = await fetch('http://52.87.215.20:5000/reservation', {
+          method: 'POST',
+          body: JSON.stringify({}),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        });
+        const json = await req.json();
 
+        if(json.succes == true){
+          alert('Reserva Concluída');
+        }
       }
     
 
