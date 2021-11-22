@@ -10,6 +10,8 @@ import  DestinoPesquisa  from './screens/DestinoPesquisa'
 import Viagens from './screens/Viagens'
 import Assentos from './screens/Assentos';
 import Login from './screens/Login';
+import Confirmar from './screens/Confirmar';
+import Cadastro from './screens/Cadastro';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,9 @@ export default () => {
       <Stack.Screen
         name='Login'
         component={Login}/>
+        <Stack.Screen
+        name='Cadastro'
+        component={Cadastro}/>
         <Stack.Screen
         name='Pesquisa de Viagens'
         component={ViagemForm}/>
@@ -36,6 +41,9 @@ export default () => {
         <Stack.Screen
         name='Assentos'
         component={Assentos}/>
+        <Stack.Screen
+        name='Confirmar'
+        component={Confirmar}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

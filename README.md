@@ -63,6 +63,8 @@ npm install @react-navigation/native @react-navigation/native-stack
 
 npm install react-native-screens react-native-safe-area-context
 
+npm install @react-native-picker/picker --save
+
 ir para o arquivo na pasta:
 
 planalto-front-final-main\android\app\src\main\res\values\styles.xml

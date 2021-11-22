@@ -1,3 +1,4 @@
+import { StackActions } from '@react-navigation/routers';
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import styled from 'styled-components/native';
@@ -72,24 +73,45 @@ const ItemArea = styled.TouchableHighlight`
   background-color: white;
 `;
 
-export default function Viagens({navigation, route}) {
-    const [viagens, setViagens] = useState(route.params.viagens);
+const Button = styled.TouchableHighlight`
+  margin-bottom: 10px;
+  margin-left: 25px;
+  width: 85%;  
+`;
+
+const LoginText = styled.Text`
+  color: white;
+  background-color: #04B431;
+  font-size: 22px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+`;
+
+export default function Confirmar({navigation, route}) {
     const [origem, setOrigem] = useState(route.params.origem);
     const [destino, setDestino] = useState(route.params.destino);
     const [dataIda, setDataIda] = useState(route.params.dataIda);
+    const [assento, setAssento] = useState(route.params.assento);
 
-    const ComprarViagem = async (id, busID) => {
-      var busSeats = [];
-      const req = await fetch('http://52.87.215.20:5000/seat');
-      const json = await req.json();
-      json.seats.forEach(item => {
-        if(item.bus_id == busID){
-          busSeats.push(item);
-      }
-    });
-    DataHandler.viagemID = id;
-    //busSeats = [1, 2, 3, 4, 5];
-    navigation.navigate('Assentos', {seats: busSeats, origem: origem, destino: destino, dataIda: dataIda, id:id});
+    const Confirmar = async () => {
+      const req = await fetch('http://52.87.215.20:5000/reservation', {
+          method: 'POST',
+          body: JSON.stringify({
+            access_token: DataHandler.token,
+            trip_id: DataHandler.viagemID,
+            seat_id: DataHandler.assentoID
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        });
+        const json = await req.json();
+        console.log(json);
+        if(json.success == true){
+          alert('Reserva Confirmada');
+          navigation.dispatch(StackActions.pop(3));
+        }
     }
 
     return (
@@ -99,26 +121,22 @@ export default function Viagens({navigation, route}) {
                 underlayColor='#1ab241'>
                     <ButtonSymbol>{'<'}</ButtonSymbol>
                 </BackButton>
-                <HeaderText>Viagens</HeaderText>
+                <HeaderText>Confirmação de Reserva</HeaderText>
             </Header>
            
                 <SearchDropdownArea>
                     <SearchDropdown>
-                    {
-                        viagens.map(item=>{
-                            return(
-                            <ItemArea onPress={() => ComprarViagem(item.id, item.busID)}
-                            navigator={navigation}
-                            underlayColor='#b5b5b5'
-                            activeOpacity={0.6}>
+                        <ItemArea>
                             <View>
-                                <Item>Ida: {item.dataIda}</Item>
-                                <Item>Assentos disponíveis: {32}</Item>
-                                <Item>Preço: R${item.preco}</Item>
+                                <Item>Origem: {DataHandler.origem}</Item>
+                                <Item>Destino: {DataHandler.destino}</Item>
+                                <Item>Data: {DataHandler.dataIda}</Item>
+                                <Item>Assento: {DataHandler.assento}</Item>
+                                <Button onPress={() => Confirmar()}>
+                                    <LoginText>Confirmar</LoginText>
+                                </Button>
                             </View>
-                            </ItemArea>)
-                        })
-                    }
+                        </ItemArea>
                     </SearchDropdown>
                 </SearchDropdownArea>
         </Page>

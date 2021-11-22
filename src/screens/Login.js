@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Image } from 'react-native';
 import styled from 'styled-components/native';
+import DataHandler from '../DataHandler';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -89,12 +90,14 @@ export default function Login({navigation}) {
         }
       });
       const json = await req.json();
+      console.log(json.access_token);
 
       if(json.success == true){
+        DataHandler.token = json.access_token
         navigation.navigate('Pesquisa de Viagens');
-      } else {
+       } else {
         alert('Login Negado - '+json.message);
-      }
+      } 
 
     } else {
       alert('Preencha as informações!')
@@ -120,7 +123,7 @@ export default function Login({navigation}) {
         <Button>
           <SenhaText>Esqueceu a senha?</SenhaText>
         </Button>
-        <Button>
+        <Button onPress={() => navigation.navigate('Cadastro')}>
           <CadastroText>CADASTRE-SE AQUI</CadastroText>
         </Button>
       </Container>

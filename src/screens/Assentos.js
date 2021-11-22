@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import styled from 'styled-components/native';
-import Data from './cities.json'
+import DataHandler from '../DataHandler';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -76,17 +76,28 @@ flex-direction: row;
 
 export default function Assentos({navigation, route}) {
     const [busSeats, setBusSeats] = useState(route.params.seats);
+    const [origem, setOrigem] = useState(route.params.origem);
+    const [destino, setDestino] = useState(route.params.destino);
+    const [dataIda, setDataIda] = useState(route.params.dataIda);
+
     var seats = [];
     var index = 0;
-    console.log(busSeats);
 
     const seatsLength = busSeats.length;
-
-      for(var i=0; i<seatsLength/4; i++){
+      for(var i=1; i<=Math.ceil(seatsLength/4); i++){
+        var quant = 0;
+        if(i*4 < seatsLength)
+          quant = 4;
+        else
+          quant = seatsLength-((i-1)*4);
+        console.log(quant);
         var row = [];
         var passou = false;
 
-        for(var seat=index; seat<index+3; seat++){
+        for(var seat=index*4; seat<index+quant; seat++){
+          
+          const seatName = busSeats[seat].name;
+          const seatID = busSeats[seat].id;
           if(seat == index+2 && !passou){
             row.push(<View>
               <Text style={{paddingRight:30, paddingLeft:30}}></Text>
@@ -95,8 +106,8 @@ export default function Assentos({navigation, route}) {
             passou = true;
           }
           else{
-            row.push(<Seat onPress={() => FazerReserva()}>
-              <Text>{busSeats[seat].name}</Text>
+            row.push(<Seat onPress={() => FazerReserva(seatName, seatID)}>
+              <Text>{seatName}</Text>
             </Seat>);
           }
         }
@@ -106,19 +117,10 @@ export default function Assentos({navigation, route}) {
         index = index+4;
       }
 
-      const FazerReserva = async () => {
-        const req = await fetch('http://52.87.215.20:5000/reservation', {
-          method: 'POST',
-          body: JSON.stringify({}),
-          headers:{
-            'Content-Type': 'application/json'
-          }
-        });
-        const json = await req.json();
-
-        if(json.succes == true){
-          alert('Reserva Concluída');
-        }
+      const FazerReserva = async (assento, assentoID) => {
+        DataHandler.assento = assento;
+        DataHandler.assentoID = assentoID;
+        navigation.navigate('Confirmar', {origem: origem, destino: destino, dataIda: dataIda, assento: assento});
       }
     
 
@@ -137,17 +139,6 @@ export default function Assentos({navigation, route}) {
                     {
                         seats
                     }
-                    {/* <Row>
-                    <Seat>
-                      <Text>{1}</Text>
-                    </Seat>
-                    <Seat>
-                      <Text>{2}</Text>
-                    </Seat>
-                    <Seat>
-                      <Text>{3}</Text>
-                    </Seat>
-                    </Row> */}
                     </SearchDropdown>
                 </SearchDropdownArea>
         </Page>

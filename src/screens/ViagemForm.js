@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 import DatePicker from 'react-native-datepicker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import DataHandler from '../DataHandler';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,24 @@ const Input = styled.TextInput`
   font-size: 18px;
   color: black;
 `;//Os inputs em si
+
+const BackButton = styled.TouchableHighlight`
+  background-color: #088A29;
+  color: red;
+  font-size: 22px;
+  font-weight: bold;
+  width: 10%;
+`;
+
+const ButtonSymbol = styled.Text`
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  width: 100%;
+  justify-content: center;
+  padding-left: 10px;
+  padding-top: 10px;
+`;
 
 const Button = styled.TouchableHighlight`
   margin-bottom: 10px;
@@ -96,16 +115,38 @@ export default function ViagemForm({navigation, route}) {
 
   const Buscar = async () => {
     if(origem && destino && dataIda){
-      const req = await fetch('http://52.87.215.20:5000/trip');
-      const json = await req.json();
-      const viagens = []
-      json.trips.forEach(item => {
-        if(item.origin.name == origem && item.destination.name == destino){
-          viagens.push({ida:item.tripdate, assentos:32, preco:item.price, id:item.bus.id});
+      var origemID = 0;
+      var destinoID = 0;
+      const reqCities = await fetch('http://52.87.215.20:5000/city');
+      const jsonCities = await reqCities.json();
+      jsonCities.cities.forEach(item => {
+        if(item.name == origem)
+          origemID = item.id;
+        if(item.name == destino)
+          destinoID = item.id;
+      });
+      const ida = dataIda;
+      const req = await fetch('http://52.87.215.20:5000/tripByDate', {
+        method: 'POST',
+        body: JSON.stringify({
+          tripdate: dataIda,
+          origin_id: origemID,
+          destination_id: destinoID
+        }),
+        headers:{
+          'Content-type': 'application/json'
         }
       });
-      //viagens = [{ida:'12/03/2021',assentos:32, preco:102.09}];
-      navigation.navigate('Viagens', {viagens: viagens})
+      var viagens = [];
+      const json = await req.json();
+      json.trips.forEach(item => {
+        viagens.push({dataIda:item.tripdate, preco:item.price, id:item.id, busID: item.bus_id});
+      })
+      //const viagens = [{ida:'12/03/2021',assentos:32, preco:102.09, id: 123}];
+      DataHandler.origem = origem;
+      DataHandler.destino = destino;
+      DataHandler.dataIda = dataIda;
+      navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
     }
     else{
       alert('Preencha os campos obrigatórios');
@@ -115,6 +156,10 @@ export default function ViagemForm({navigation, route}) {
   return (
     <Page>
       <Header>
+      {/* <BackButton onPress={() => navigation.goBack()}
+                underlayColor='#1ab241'>
+          <ButtonSymbol>{'<'}</ButtonSymbol>
+        </BackButton> */}
         <HeaderText>Pesquisa de Viagens</HeaderText>
       </Header>
       <Container>
@@ -144,7 +189,7 @@ export default function ViagemForm({navigation, route}) {
           date={dataIda}
           mode="date"
           placeholder="Escolha a data de ida"
-          format="DD/MM/YYYY"
+          format="YYYY-MM-DD"
           minDate={data}
           maxDate={ultimaData}
           confirmBtnText="Confirmar"
