@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import Icon from 'react-native-vector-icons/Entypo';
+import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import styled from 'styled-components/native';
 import DatePicker from 'react-native-datepicker';
 import { NavigationContainer } from '@react-navigation/native';
@@ -76,7 +78,46 @@ const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
+  margin-left: 20px;
 `;//Titulo da tela
+
+const MenuButton = styled.TouchableHighlight`
+  color: red;
+  font-size: 22px;
+  font-weight: bold;
+  width: 7%;
+  margin-top: 12px;
+  position: absolute;
+`;
+
+const Menu = styled.Modal`
+background-color: rgba(0, 0, 0, 0.3);
+`;
+
+const MenuBody = styled.TouchableOpacity`
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.3);
+`;
+
+const Box = styled.View`
+width: 80%;
+height: 100%;
+background-color: white;
+`;
+
+const MenuItem = styled.TouchableHighlight`
+padding: 20px;
+border-bottom-width: 1px;
+border-bottom-color: #aaaaaa;
+`;
+
+const MenuItemText = styled.Text`
+position: absolute;
+margin-left: 60px;
+font-size: 20px;
+color: #aaaaaa;
+`;
 
 const Touchable = styled.TouchableOpacity``;
 
@@ -101,6 +142,7 @@ export default function ViagemForm({navigation, route}) {
   const [destino, setDestino] = useState('');
   const [dataIda, setDataIda] = useState(data);
   const [dataVolta, setDataVolta] = useState('');
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const onPressOrigem = () => {
     navigation.navigate('Pesquisa de Origem', {onReturnOrigem: (item) => {
@@ -155,13 +197,51 @@ export default function ViagemForm({navigation, route}) {
 
   return (
     <Page>
+      <Menu visible={menuVisible}
+      animationType='slide'
+      transparent={true}>
+        <MenuBody onPressOut={()=>setMenuVisible(false)}>
+          <TouchableWithoutFeedback>
+            <Box>
+              <MenuItem onPress={()=>setMenuVisible(false)}>
+                <View>
+                  <Icon name="home" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Home</MenuItemText>
+                </View>
+              </MenuItem>
+
+              <MenuItem>
+                <View>
+                  <IconAwesome name="bus" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Viagens</MenuItemText>
+                </View>
+              </MenuItem>
+
+              <MenuItem>
+                <View>
+                  <Icon name="open-book"  color="#aaaaaa" size={25}/>
+                  <MenuItemText>Dados</MenuItemText>
+                </View>
+              </MenuItem>
+
+              <MenuItem>
+                <View>
+                  <Icon name="log-out" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Logout</MenuItemText>
+                </View>
+              </MenuItem>
+            </Box>
+          </TouchableWithoutFeedback>
+        </MenuBody>
+      </Menu>
+
       <Header>
-      {/* <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-          <ButtonSymbol>{'<'}</ButtonSymbol>
-        </BackButton> */}
+        <MenuButton onPress={()=>setMenuVisible(true)}>
+          <Icon name='menu' size={25} color="white"/>
+        </MenuButton>
         <HeaderText>Pesquisa de Viagens</HeaderText>
       </Header>
+
       <Container>
         <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
         <Touchable onPress={onPressOrigem}>

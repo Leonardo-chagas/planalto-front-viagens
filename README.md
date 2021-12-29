@@ -65,6 +65,10 @@ npm install react-native-screens react-native-safe-area-context
 
 npm install @react-native-picker/picker --save
 
+npm install --save react-native-vector-icons
+
+react-native link react-native-vector-icons
+
 ir para o arquivo na pasta:
 
 planalto-front-final-main\android\app\src\main\res\values\styles.xml
