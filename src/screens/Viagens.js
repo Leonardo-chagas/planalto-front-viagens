@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import styled from 'styled-components/native';
 import DataHandler from '../DataHandler';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -44,6 +45,7 @@ const BackButton = styled.TouchableHighlight`
   font-size: 22px;
   font-weight: bold;
   width: 10%;
+  margin-top: 13px;
 `;
 
 const ButtonSymbol = styled.Text`
@@ -97,7 +99,7 @@ export default function Viagens({navigation, route}) {
             <Header>
                 <BackButton onPress={() => navigation.goBack()}
                 underlayColor='#1ab241'>
-                    <ButtonSymbol>{'<'}</ButtonSymbol>
+                    <Icon name="arrowleft" color="white" size={25}/>
                 </BackButton>
                 <HeaderText>Viagens</HeaderText>
             </Header>

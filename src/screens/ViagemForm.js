@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Image, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
+import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import styled from 'styled-components/native';
 import DatePicker from 'react-native-datepicker';
 import { NavigationContainer } from '@react-navigation/native';
