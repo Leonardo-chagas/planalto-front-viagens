@@ -22,11 +22,11 @@ export default () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen
-        name='Minhas Viagens'
-        component={MinhasViagens}/>
-      <Stack.Screen
         name='Pesquisa de Viagens'
         component={ViagemForm}/>
+      <Stack.Screen
+        name='Minhas Viagens'
+        component={MinhasViagens}/>
       <Stack.Screen
         name='Login'
         component={Login}/>

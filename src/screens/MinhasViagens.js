@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import styled from 'styled-components/native';
 import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
+import QRCode from 'react-native-qrcode-svg';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -104,13 +105,40 @@ font-size: 18px;
 font-weight: bold;
 `;
 
+const VoucherArea = styled.Modal`
+background-color: rgba(0, 0, 0, 0.3);
+`;
+
+const VoucherAreaBody = styled.TouchableOpacity`
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.3);
+`;
+
+const Box = styled.View`
+width: 60%;
+height: 70%
+background-color: white;
+position: absolute;
+left: 20%;
+top: 20%;
+align-items: center;
+justify-content: center;
+`;
+
 export default function MinhasViagens({navigation, route}) {
 
   const [screen, setScreen] = useState(0);
+  const [voucherVisible, setVoucherVisible] = useState(false);
+  const [qrcode, setQRcode] = useState('');
+  const [ret, setRet] = useState(route.params.ret)
+  const [dev, setDev] = useState(route.params.dev)
+  const [fin, setFin] = useState(route.params.fin)
 
-    const CancelarViagem = async (id, busID) => {
-      
-    }
+  const ViewVoucher = (code) => {
+    setQRcode(code);
+    setVoucherVisible(true);
+  }
 
     return (
         <Page>
@@ -133,77 +161,71 @@ export default function MinhasViagens({navigation, route}) {
                 <ScreenText>Finalizadas</ScreenText>
               </ScreenArea>
             </ScreensHeader>
+
+            <VoucherArea 
+            visible={voucherVisible}
+            transparent={true}>
+              <VoucherAreaBody onPressOut={()=>setVoucherVisible(false)}>
+                <TouchableWithoutFeedback>
+                  <Box>
+                    <QRCode
+                    value='Some string value'
+                    color={'black'}
+                    backgroundColor={'white'}
+                    size={150}/>
+                  </Box>
+                </TouchableWithoutFeedback>
+              </VoucherAreaBody>
+            </VoucherArea>
            
            {screen == 0 &&
                 <SearchDropdownArea>
                     <SearchDropdown>
-                      <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>Valor Total: R$ 143,40</Item>
-                        <VoucherLink>
-                          <VoucherText>Vizualizar Voucher</VoucherText>
-                        </VoucherLink>
-                      </ItemArea>
-                      <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>Valor Total: R$ 143,40</Item>
-                        <VoucherLink>
-                          <VoucherText>Vizualizar Voucher</VoucherText>
-                        </VoucherLink>
-                      </ItemArea>
-                      <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>Valor Total: R$ 143,40</Item>
-                        <VoucherLink>
-                          <VoucherText>Vizualizar Voucher</VoucherText>
-                        </VoucherLink>
-                      </ItemArea>
-                      <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>Valor Total: R$ 143,40</Item>
-                        <VoucherLink>
-                          <VoucherText>Vizualizar Voucher</VoucherText>
-                        </VoucherLink>
-                      </ItemArea>
-                      <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>Valor Total: R$ 143,40</Item>
-                        <VoucherLink>
-                          <VoucherText>Vizualizar Voucher</VoucherText>
-                        </VoucherLink>
-                      </ItemArea>
+                      {
+                        ret.map(item=>{
+                          return(
+                        <ItemArea>
+                          <Item>{item.origem} ------{'>'} {item.destino}</Item>
+                          <Item>Data: {item.dataIda}</Item>
+                          <Item>Valor Total: R$ {item.valor}</Item>
+                          <VoucherLink onPress={()=>ViewVoucher(item.code)}>
+                            <VoucherText>Vizualizar Voucher</VoucherText>
+                          </VoucherLink>
+                        </ItemArea>)
+                        })
+                      }
                     </SearchDropdown>
                 </SearchDropdownArea>
             }
             {screen == 1 &&
                 <SearchDropdownArea>
                     <SearchDropdown>
-                    <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>NSU: 23843749144184</Item>
-                      </ItemArea>
-                      <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>NSU: 23843749144184</Item>
-                      </ItemArea>
+                      {
+                        dev.map(item=>{
+                          return(
+                        <ItemArea>
+                            <Item>{item.origem} ------{'>'} {item.destino}</Item>
+                            <Item>Data: {item.dataIda}</Item>
+                            <Item>NSU: {item.nsu}</Item>
+                          </ItemArea>)
+                      })
+                      }
                     </SearchDropdown>
                 </SearchDropdownArea>
             }
             {screen == 2 &&
                 <SearchDropdownArea>
                     <SearchDropdown>
-                    <ItemArea>
-                        <Item>Pelotas - RS ------{'>'} Porto Alegre - RS</Item>
-                        <Item>Data: 16/02/2022 16:19</Item>
-                        <Item>NSU: 23843749144184</Item>
-                      </ItemArea>
+                      {
+                        fin.map(item=>{
+                        return(
+                      <ItemArea>
+                        <Item>{item.origem} ------{'>'} {item.destino}</Item>
+                        <Item>Data: {item.dataIda}</Item>
+                        <Item>NSU: {item.nsu}</Item>
+                      </ItemArea>)
+                      })
+                      }
                     </SearchDropdown>
                 </SearchDropdownArea>
             }

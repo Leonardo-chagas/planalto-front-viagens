@@ -69,6 +69,12 @@ npm install --save react-native-vector-icons
 
 react-native link react-native-vector-icons
 
+npm install react-native-svg
+
+react-native link react-native-svg
+
+npm install react-native-qrcode-svg
+
 ir para o arquivo na pasta:
 
 planalto-front-final-main\android\app\src\main\res\values\styles.xml

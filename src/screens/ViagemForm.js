@@ -194,6 +194,20 @@ export default function ViagemForm({navigation, route}) {
       alert('Preencha os campos obrigatórios');
     }
   }
+  const MinhasViagens = () => {
+    var ret = [];
+    var dev = [];
+    var fin = [];
+
+    ret = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value'},
+          {origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value'}];
+
+    dev = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184'}];
+
+    fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184'}];
+
+    navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin})
+  }
 
   return (
     <Page>
@@ -210,7 +224,7 @@ export default function ViagemForm({navigation, route}) {
                 </View>
               </MenuItem>
 
-              <MenuItem>
+              <MenuItem onPress={()=>MinhasViagens()}>
                 <View>
                   <IconAwesome name="bus" color="#aaaaaa" size={25}/>
                   <MenuItemText>Viagens</MenuItemText>
@@ -224,7 +238,7 @@ export default function ViagemForm({navigation, route}) {
                 </View>
               </MenuItem>
 
-              <MenuItem>
+              <MenuItem onPress={()=>navigation.goBack()}>
                 <View>
                   <Icon name="log-out" color="#aaaaaa" size={25}/>
                   <MenuItemText>Logout</MenuItemText>
