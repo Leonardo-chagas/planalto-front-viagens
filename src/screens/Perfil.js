@@ -107,23 +107,24 @@ const styles = StyleSheet.create({
 });
 
 export default function Cadastro ({navigation, route}) {
-  console.log(route.params.dataHandler.getAccessToken())
-  
-  const datahoje = new Date();
-  const datainicial = new Date(1900,0,1);
-  const [nome, setNome] = useState('');
-  const [documento, setDocumento] = useState('');
-  const [datanascimento, setDataNascimento] = useState('');
-  const [email, setEmail] = useState('');
-  const [tipotelefone, setTipoTelefone] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [cep, setCep] = useState('');
-  const [rua, setRua] = useState('');
-  const [numero, setNumero] = useState('');
-  const [complemento, setComplemento] = useState('');
-  const [bairro, setBairro] = useState('');
-  const [cidade, setCidade] = useState('');
-  const [estado, setEstado] = useState('');
+  console.log(route.params.dataHandler.getAccessToken());
+  console.log(route.params.userData);
+
+  // const datahoje = new Date();
+  // const datainicial = new Date(1900,0,1);
+  const [nome, setNome] = useState(route.params.userData.user.name);
+  const [documento, setDocumento] = useState(route.params.userData.user.document);
+  // const [datanascimento, setDataNascimento] = useState('');
+  const [email, setEmail] = useState(route.params.userData.user.email);
+  const [tipotelefone, setTipoTelefone] = useState(route.params.userData.user.phone_type);
+  const [telefone, setTelefone] = useState(route.params.userData.user.phone);
+  const [cep, setCep] = useState(route.params.userData.user.addr_postal_code);
+  const [rua, setRua] = useState(route.params.userData.user.addr_street);
+  const [numero, setNumero] = useState(route.params.userData.user.addr_number);
+  const [complemento, setComplemento] = useState(route.params.userData.user.addr_additional_info);
+  const [bairro, setBairro] = useState(route.params.userData.user.neighbourhood);
+  const [cidade, setCidade] = useState(route.params.userData.user.city);
+  const [estado, setEstado] = useState(route.params.userData.user.state);
 
   // const [isEnabled, setIsEnabled] = useState(false);
   // const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -131,37 +132,6 @@ export default function Cadastro ({navigation, route}) {
   const atualizarCadastro = async () =>{
     console.log("Vou atualizar!")
   }
-
-  const buscarDados = async() => {
-    console.log(route.params.dataHandler.getUserID());
-    console.log(route.params.dataHandler.getAccessToken());
-    const url = 'http://52.87.215.20:5000/user/' + route.params.dataHandler.getUserID() +'?access_token=' + route.params.dataHandler.getAccessToken();
-    console.log(url);
-    const req = await fetch(url, {
-      method: 'GET',
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    });
-
-    console.log("Cheguei aqui!")
-    const userData = await req.json();
-
-    setNome(userData.user.name);
-    setDocumento(userData.user.document);
-    setEmail(userData.user.email);
-    setTipoTelefone(userData.user.phone_type);
-    setTelefone(userData.user.phone);
-    setCep(userData.user.addr_postal_code);
-    setRua(userData.user.addr_street);
-    setNumero(userData.user.addr_number);
-    setComplemento(userData.user.addr_additional_info);
-    setBairro(userData.user.neighbourhood);
-    setCidade(userData.user.city);
-    setEstado(userData.user.state);
-  }
-
-  buscarDados();
 
   return (
     <Page>
@@ -216,7 +186,7 @@ export default function Cadastro ({navigation, route}) {
         <Picker selectedValue={tipotelefone} mode={'dropdown'} onValueChange={t=>setTipoTelefone(t)}>
           <Picker.Item style={styles.item} label="Celular" value="1"/>
           <Picker.Item style={styles.item} label="Residencial" value="2"/>
-          <Picker.Item style={styles.item} label="Comarcial" value="3"/>
+          <Picker.Item style={styles.item} label="Comercial" value="3"/>
         </Picker>
         </SelectorView>
         <InputView>
