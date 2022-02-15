@@ -8,6 +8,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DataHandler from '../DataHandler';
 
+const dataHandler = new DataHandler();
+
 const Stack = createNativeStackNavigator();
 
 const Page = styled.SafeAreaView`
@@ -70,56 +72,63 @@ const Header = styled.View`
   width: 100%;
   background-color: #088A29;
   height: 50px;
-  margin-bottom: 20px;
   align-items: flex-start;
+  flex-direction: row;
 `;//Area que contem o titulo da tela
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-  margin-left: 20px;
 `;//Titulo da tela
 
 const MenuButton = styled.TouchableHighlight`
+  background-color: #088A29;
   color: red;
   font-size: 22px;
   font-weight: bold;
-  width: 7%;
-  margin-top: 12px;
-  position: absolute;
+  width: 10%;
+  margin-top: 13px;
+  align-items: center;
 `;
 
 const Menu = styled.Modal`
-background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
 `;
 
 const MenuBody = styled.TouchableOpacity`
-width: 100%;
-height: 100%;
-background-color: rgba(0, 0, 0, 0.3);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
 `;
 
 const Box = styled.View`
-width: 80%;
-height: 100%;
-background-color: white;
+  width: 80%;
+  height: 100%;
+  background-color: white;
 `;
 
 const MenuItem = styled.TouchableHighlight`
-padding: 20px;
-border-bottom-width: 1px;
-border-bottom-color: #aaaaaa;
+  padding: 20px;
+  border-bottom-width: 1px;
+  border-bottom-color: #aaaaaa;
 `;
 
 const MenuItemText = styled.Text`
-position: absolute;
-margin-left: 60px;
-font-size: 20px;
-color: #aaaaaa;
+  position: absolute;
+  margin-left: 60px;
+  font-size: 20px;
+  color: #aaaaaa;
 `;
 
 const Touchable = styled.TouchableOpacity``;
+
+const styles = StyleSheet.create({
+  datePickerStyle: {
+    width: 200,
+    marginTop: 20,
+  }
+});
 
 export default function ViagemForm({navigation, route}) {
   const dia = new Date().getDate();
@@ -149,6 +158,7 @@ export default function ViagemForm({navigation, route}) {
       setOrigem(item)
     }})
   }
+  
   const onPressDestino = () => {
     navigation.navigate('Pesquisa de Destino', {onReturnDestino: (item) => {
       setDestino(item)
@@ -185,15 +195,16 @@ export default function ViagemForm({navigation, route}) {
         viagens.push({dataIda:item.tripdate, preco:item.price, id:item.id, busID: item.bus_id});
       })
       //const viagens = [{ida:'12/03/2021',assentos:32, preco:102.09, id: 123}];
-      DataHandler.origem = origem;
-      DataHandler.destino = destino;
-      DataHandler.dataIda = dataIda;
+      dataHandler.setOrigem(origem);
+      dataHandler.setDestino(destino);
+      dataHandler.setDataIda(dataIda);
       navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
     }
     else{
       alert('Preencha os campos obrigatórios');
     }
   }
+
   const MinhasViagens = () => {
     var ret = [];
     var dev = [];
@@ -205,139 +216,282 @@ export default function ViagemForm({navigation, route}) {
     dev = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184'}];
 
     fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184'}];
-
-    navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin})
+    
+    setMenuVisible(false)
+    navigation.navigate('Minhas Viagens', {ret: ret, dev: dev, fin: fin})
   }
 
-  return (
-    <Page>
-      <Menu visible={menuVisible}
-      animationType='slide'
-      transparent={true}>
-        <MenuBody onPressOut={()=>setMenuVisible(false)}>
-          <TouchableWithoutFeedback>
-            <Box>
-              <MenuItem onPress={()=>setMenuVisible(false)}>
-                <View>
-                  <Icon name="home" color="#aaaaaa" size={25}/>
-                  <MenuItemText>Home</MenuItemText>
-                </View>
-              </MenuItem>
+  const Login = () => {
+    setMenuVisible(false);
+    navigation.navigate('Login', {dataHandler: dataHandler})
+  }
 
-              <MenuItem onPress={()=>MinhasViagens()}>
-                <View>
-                  <IconAwesome name="bus" color="#aaaaaa" size={25}/>
-                  <MenuItemText>Viagens</MenuItemText>
-                </View>
-              </MenuItem>
+  const Cadastrar = () => {
+    setMenuVisible(false)
+    navigation.navigate('Cadastro', {dataHandler: dataHandler})
+  }
 
-              <MenuItem>
-                <View>
-                  <Icon name="open-book"  color="#aaaaaa" size={25}/>
-                  <MenuItemText>Dados</MenuItemText>
-                </View>
-              </MenuItem>
+  const Perfil = () => {
+    setMenuVisible(false)
+    navigation.navigate('Perfil', {dataHandler: dataHandler})
+  }
 
-              <MenuItem onPress={()=>navigation.goBack()}>
-                <View>
-                  <Icon name="log-out" color="#aaaaaa" size={25}/>
-                  <MenuItemText>Logout</MenuItemText>
-                </View>
-              </MenuItem>
-            </Box>
-          </TouchableWithoutFeedback>
-        </MenuBody>
-      </Menu>
+  const Sair = () => {
+    setMenuVisible(false)
+    dataHandler.setAccessToken('');
+    dataHandler.setRefreshToken('');
+    dataHandler.setUserID('');
+    navigation.navigate('Pesquisa de Viagens')
+  }
+  
+  console.log("Esse é o token: "+ dataHandler.getAccessToken())
+  console.log("Esse é o refresh: "+ dataHandler.getRefreshToken())
+  console.log("Esse é o ID: "+ dataHandler.getUserID())
+  if (dataHandler.getAccessToken() == '') {
+    console.log("Entrei aqui, estou sem token!")
+    return (
+      <Page>
+        <Menu visible={menuVisible}
+          animationType='slide'
+          transparent={true}>
+          <MenuBody onPressOut={()=>setMenuVisible(false)}>
+            <TouchableWithoutFeedback>
+              <Box>
+                <MenuItem onPress={()=>setMenuVisible(false)}>
+                  <View>
+                    <Icon name="home" color="#aaaaaa" size={25}/>
+                    <MenuItemText>Home</MenuItemText>
+                  </View>
+                </MenuItem>
+  
+                <MenuItem onPress={()=>Login()}>
+                  <View>
+                    <Icon name="lock-open" color="#aaaaaa" size={25}/>
+                    <MenuItemText>Entrar</MenuItemText>
+                  </View>
+                </MenuItem>
+  
+                <MenuItem onPress={()=>Cadastrar()}>
+                  <View>
+                    <Icon name="lock-open"  color="#aaaaaa" size={25}/>
+                    <MenuItemText>Cadastrar</MenuItemText>
+                  </View>
+                </MenuItem>
 
-      <Header>
-        <MenuButton onPress={()=>setMenuVisible(true)}>
-          <Icon name='menu' size={25} color="white"/>
-        </MenuButton>
-        <HeaderText>Pesquisa de Viagens</HeaderText>
-      </Header>
+              </Box>
+            </TouchableWithoutFeedback>
+          </MenuBody>
+        </Menu>
+  
+        <Header>
+          <MenuButton onPress={()=>setMenuVisible(true)}>
+            <Icon name='menu' size={25} color="white"/>
+          </MenuButton>
+          <HeaderText>Pesquisa de Viagens</HeaderText>
+        </Header>
+  
+        <Container>
+          <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
+          <Touchable onPress={onPressOrigem}>
+          <InputView>
+            <Input 
+              placeholder={'Escolha sua Origem'}
+              editable={false}
+              onTouchStart={onPressOrigem}
+              value={origem}
+            />
+          </InputView>
+          </Touchable>
+          <Touchable onPress={onPressDestino}>
+          <InputView>
+            <Input 
+              placeholder={'Escolha seu Destino'}
+              editable={false}
+              onTouchStart={onPressDestino}
+              value={destino}/>
+          </InputView>
+          </Touchable>
+          <InputView>
+            <DatePicker
+              style={styles.datePickerStyle}
+              date={dataIda}
+              mode="date"
+              placeholder="Escolha a data de ida"
+              format="YYYY-MM-DD"
+              minDate={data}
+              maxDate={ultimaData}
+              confirmBtnText="Confirmar"
+              cancelBtnText="Cancelar"
+              customStyles={{
+                dateIcon: {
+                  position: 'absolute',
+                  left: 0,
+                  top: 4,
+                  marginLeft: 0,
+                },
+                dateInput: {
+                  marginLeft: 36,
+                  borderWidth: 0,
+                },
+              }}
+              onDateChange={(dataIda) => {setDataIda(dataIda)}}/>
+          </InputView>
+          <InputView>
+            <DatePicker
+              style={styles.datePickerStyle}
+              date={dataVolta}
+              mode="date"
+              placeholder="Escolha a data de volta (opcional)"
+              format="DD/MM/YYYY"
+              minDate={data}
+              maxDate={ultimaData}
+              confirmBtnText="Confirmar"
+              cancelBtnText="Cancelar"
+              customStyles={{
+                dateIcon: {
+                  position: 'absolute',
+                  left: 0,
+                  top: 4,
+                  marginLeft: 0,
+                },
+                dateInput: {
+                  marginLeft: 36,
+                  borderWidth: 0,
+                },
+              }}
+              onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>
+          </InputView>
+          <Button onPress={Buscar}>
+            <LoginText>Buscar</LoginText>
+          </Button>
+        </Container>
+      </Page>
+    );
+  } else {
+    console.log("Entrei aqui, estou com token!")
+    return (
+      <Page>
+        <Menu visible={menuVisible}
+          animationType='slide'
+          transparent={true}>
+          <MenuBody onPressOut={()=>setMenuVisible(false)}>
+            <TouchableWithoutFeedback>
+              <Box>
+                <MenuItem onPress={()=>setMenuVisible(false)}>
+                  <View>
+                    <Icon name="home" color="#aaaaaa" size={25}/>
+                    <MenuItemText>Home</MenuItemText>
+                  </View>
+                </MenuItem>
 
-      <Container>
-        <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
-        <Touchable onPress={onPressOrigem}>
-        <InputView>
-          <Input 
-          placeholder={'Escolha sua Origem'}
-          editable={false}
-          onTouchStart={onPressOrigem}
-          value={origem}
-          />
-        </InputView>
-        </Touchable>
-        <Touchable onPress={onPressDestino}>
-        <InputView>
-          <Input 
-          placeholder={'Escolha seu Destino'}
-          editable={false}
-          onTouchStart={onPressDestino}
-          value={destino}/>
-        </InputView>
-        </Touchable>
-        <InputView>
+                <MenuItem onPress={()=>Perfil()}>
+                  <View>
+                    <Icon name="user"  color="#aaaaaa" size={25}/>
+                    <MenuItemText>Perfil</MenuItemText>
+                  </View>
+                </MenuItem>
+  
+                <MenuItem onPress={()=>MinhasViagens()}>
+                  <View>
+                    <IconAwesome name="bus" color="#aaaaaa" size={25}/>
+                    <MenuItemText>Minhas Viagens</MenuItemText>
+                  </View>
+                </MenuItem>
+  
+                <MenuItem onPress={()=>Sair()}>
+                  <View>
+                    <Icon name="log-out" color="#aaaaaa" size={25}/>
+                    <MenuItemText>Sair</MenuItemText>
+                  </View>
+                </MenuItem>
+              </Box>
+            </TouchableWithoutFeedback>
+          </MenuBody>
+        </Menu>
+  
+        <Header>
+          <MenuButton onPress={()=>setMenuVisible(true)}>
+            <Icon name='menu' size={25} color="white"/>
+          </MenuButton>
+          <HeaderText>Pesquisa de Viagens</HeaderText>
+        </Header>
+  
+        <Container>
+          <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
+          <Touchable onPress={onPressOrigem}>
+          <InputView>
+            <Input 
+              placeholder={'Escolha sua Origem'}
+              editable={false}
+              onTouchStart={onPressOrigem}
+              value={origem}
+            />
+          </InputView>
+          </Touchable>
+          <Touchable onPress={onPressDestino}>
+          <InputView>
+            <Input 
+              placeholder={'Escolha seu Destino'}
+              editable={false}
+              onTouchStart={onPressDestino}
+              value={destino}/>
+          </InputView>
+          </Touchable>
+          <InputView>
+            <DatePicker
+              style={styles.datePickerStyle}
+              date={dataIda}
+              mode="date"
+              placeholder="Escolha a data de ida"
+              format="YYYY-MM-DD"
+              minDate={data}
+              maxDate={ultimaData}
+              confirmBtnText="Confirmar"
+              cancelBtnText="Cancelar"
+              customStyles={{
+                dateIcon: {
+                  position: 'absolute',
+                  left: 0,
+                  top: 4,
+                  marginLeft: 0,
+                },
+                dateInput: {
+                  marginLeft: 36,
+                  borderWidth: 0,
+                },
+              }}
+              onDateChange={(dataIda) => {setDataIda(dataIda)}}/>
+          </InputView>
+          <InputView>
           <DatePicker
-          style={styles.datePickerStyle}
-          date={dataIda}
-          mode="date"
-          placeholder="Escolha a data de ida"
-          format="YYYY-MM-DD"
-          minDate={data}
-          maxDate={ultimaData}
-          confirmBtnText="Confirmar"
-          cancelBtnText="Cancelar"
-          customStyles={{
-            dateIcon: {
-              position: 'absolute',
-              left: 0,
-              top: 4,
-              marginLeft: 0,
-            },
-            dateInput: {
-              marginLeft: 36,
-              borderWidth: 0,
-            },
-          }}
-          onDateChange={(dataIda) => {setDataIda(dataIda)}}/>
-        </InputView>
-        <InputView>
-        <DatePicker
-        style={styles.datePickerStyle}
-        date={dataVolta}
-        mode="date"
-        placeholder="Escolha a data de volta (opcional)"
-        format="DD/MM/YYYY"
-        minDate={data}
-        maxDate={ultimaData}
-        confirmBtnText="Confirmar"
-        cancelBtnText="Cancelar"
-        customStyles={{
-          dateIcon: {
-            position: 'absolute',
-            left: 0,
-            top: 4,
-            marginLeft: 0,
-          },
-          dateInput: {
-            marginLeft: 36,
-            borderWidth: 0,
-          },
-        }}
-        onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>
-        </InputView>
-        <Button onPress={Buscar}>
-          <LoginText>Buscar</LoginText>
-        </Button>
-      </Container>
-    </Page>
-  );
-}
-
-const styles = StyleSheet.create({
-  datePickerStyle: {
-    width: 200,
-    marginTop: 20,
+            style={styles.datePickerStyle}
+            date={dataVolta}
+            mode="date"
+            placeholder="Escolha a data de volta (opcional)"
+            format="DD/MM/YYYY"
+            minDate={data}
+            maxDate={ultimaData}
+            confirmBtnText="Confirmar"
+            cancelBtnText="Cancelar"
+            customStyles={{
+              dateIcon: {
+                position: 'absolute',
+                left: 0,
+                top: 4,
+                marginLeft: 0,
+              },
+              dateInput: {
+                marginLeft: 36,
+                borderWidth: 0,
+              },
+            }}
+            onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>
+          </InputView>
+          <Button onPress={Buscar}>
+            <LoginText>Buscar</LoginText>
+          </Button>
+        </Container>
+      </Page>
+    );
   }
-});
+}

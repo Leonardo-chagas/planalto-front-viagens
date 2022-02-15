@@ -47,6 +47,7 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
+  align-items: center;
 `;
 
 const ButtonSymbol = styled.Text`

@@ -106,18 +106,16 @@ const styles = StyleSheet.create({
   }
 });
 
-export default function Cadastro ({navigation}) {
+export default function Cadastro ({navigation, route}) {
+  console.log(route.params.dataHandler.getAccessToken())
   
   const datahoje = new Date();
   const datainicial = new Date(1900,0,1);
   const [nome, setNome] = useState('');
   const [documento, setDocumento] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmapassword, setConfirmaPassword] = useState('');
   const [datanascimento, setDataNascimento] = useState('');
   const [email, setEmail] = useState('');
-  const [confirmaemail, setConfirmaEmail] = useState('');
-  const [tipotelefone, setTipoTelefone] = useState('1');
+  const [tipotelefone, setTipoTelefone] = useState('');
   const [telefone, setTelefone] = useState('');
   const [cep, setCep] = useState('');
   const [rua, setRua] = useState('');
@@ -125,55 +123,46 @@ export default function Cadastro ({navigation}) {
   const [complemento, setComplemento] = useState('');
   const [bairro, setBairro] = useState('');
   const [cidade, setCidade] = useState('');
-  const [estado, setEstado] = useState('AC');
+  const [estado, setEstado] = useState('');
 
   // const [isEnabled, setIsEnabled] = useState(false);
   // const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
-  const aguardarCadastro = async () =>{
-    if (password != '' && nome != '') {
-      console.log(route.params.dataHandler.getUserID());
-      const req = await fetch('http://52.87.215.20:5000/register', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: nome,
-          email: email,
-          email_confirmation: confirmaemail,
-          password: password,
-          password_confirmation: confirmapassword,
-          document: documento,
-          phone_type: tipotelefone,
-          phone: telefone,
-          addr_postal_code: cep,
-          addr_street: rua,
-          addr_number: numero,
-          addr_additional_info: complemento,
-          // birthdate: datanascimento,
-          neighbourhood: bairro,
-          city: cidade,
-          state: estado,
-          enable_sms: 'false'
-        }),
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log("Cheguei aqui no cadastro novo!")
-      const json = await req.json();
-      console.log(json);
-
-      if(json.success == false){
-        alert('Erro no cadastro - ' + json.message);
-      } else {
-        alert('Cadastro Realizado');
-        navigation.goBack();
-      }
-
-    } else {
-      alert('Preencha as informações!')
-    }
+  const atualizarCadastro = async () =>{
+    console.log("Vou atualizar!")
   }
-  
+
+  const buscarDados = async() => {
+    console.log(route.params.dataHandler.getUserID());
+    console.log(route.params.dataHandler.getAccessToken());
+    const url = 'http://52.87.215.20:5000/user/' + route.params.dataHandler.getUserID() +'?access_token=' + route.params.dataHandler.getAccessToken();
+    console.log(url);
+    const req = await fetch(url, {
+      method: 'GET',
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log("Cheguei aqui!")
+    const userData = await req.json();
+
+    setNome(userData.user.name);
+    setDocumento(userData.user.document);
+    setEmail(userData.user.email);
+    setTipoTelefone(userData.user.phone_type);
+    setTelefone(userData.user.phone);
+    setCep(userData.user.addr_postal_code);
+    setRua(userData.user.addr_street);
+    setNumero(userData.user.addr_number);
+    setComplemento(userData.user.addr_additional_info);
+    setBairro(userData.user.neighbourhood);
+    setCidade(userData.user.city);
+    setEstado(userData.user.state);
+  }
+
+  buscarDados();
+
   return (
     <Page>
       <Header>
@@ -191,12 +180,6 @@ export default function Cadastro ({navigation}) {
         </InputView>
         <InputView>
           <Input value={documento} onChangeText={t=>setDocumento(t)} placeholder={'Documento'}/>
-        </InputView>
-        <InputView>
-          <Input secureTextEntry={true} value={password} onChangeText={t=>setPassword(t)} placeholder={'Senha'}></Input>
-        </InputView>
-        <InputView>
-          <Input secureTextEntry={true} value={confirmapassword} onChangeText={t=>setConfirmaPassword(t)} placeholder={'Confirmação de senha'}></Input>
         </InputView>
         {/* <InputView>
           <DatePicker
@@ -226,9 +209,9 @@ export default function Cadastro ({navigation}) {
         <InputView>
           <Input value={email} onChangeText={t=>setEmail(t)} placeholder={'E-mail'}/>
         </InputView>
-        <InputView>
+        {/* <InputView>
           <Input value={confirmaemail} onChangeText={t=>setConfirmaEmail(t)} placeholder={'Confirmação de e-mail'}/>
-        </InputView>
+        </InputView> */}
         <SelectorView>
         <Picker selectedValue={tipotelefone} mode={'dropdown'} onValueChange={t=>setTipoTelefone(t)}>
           <Picker.Item style={styles.item} label="Celular" value="1"/>
@@ -297,7 +280,7 @@ export default function Cadastro ({navigation}) {
           <Picker.Item style={styles.item} value="TO" label="Tocantins"/>
         </Picker>
         </SelectorView>
-        <Button onPress={aguardarCadastro}>
+        <Button onPress={atualizarCadastro}>
           <LoginText>Cadastrar</LoginText>
         </Button>
       </Container>
