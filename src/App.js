@@ -1,7 +1,4 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet } from 'react-native';
-import styled from 'styled-components/native';
-import DatePicker from 'react-native-datepicker';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import  ViagemForm  from './screens/ViagemForm'
@@ -13,6 +10,7 @@ import Login from './screens/Login';
 import Confirmar from './screens/Confirmar';
 import Cadastro from './screens/Cadastro';
 import MinhasViagens from './screens/MinhasViagens';
+import Perfil from './screens/Perfil';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +31,9 @@ export default () => {
         <Stack.Screen
         name='Cadastro'
         component={Cadastro}/>
+        <Stack.Screen
+        name='Perfil'
+        component={Perfil}/>
         <Stack.Screen
         name='Pesquisa de Origem'
         component={OrigemPesquisa}/>
