@@ -233,7 +233,7 @@ export default function Cadastro ({navigation}) {
         <Picker selectedValue={tipotelefone} mode={'dropdown'} onValueChange={t=>setTipoTelefone(t)}>
           <Picker.Item style={styles.item} label="Celular" value="1"/>
           <Picker.Item style={styles.item} label="Residencial" value="2"/>
-          <Picker.Item style={styles.item} label="Comarcial" value="3"/>
+          <Picker.Item style={styles.item} label="Comercial" value="3"/>
         </Picker>
         </SelectorView>
         <InputView>

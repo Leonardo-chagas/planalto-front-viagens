@@ -231,9 +231,20 @@ export default function ViagemForm({navigation, route}) {
     navigation.navigate('Cadastro', {dataHandler: dataHandler})
   }
 
-  const Perfil = () => {
+  const Perfil = async() => {
+
+    const url = 'http://52.87.215.20:5000/user/'+dataHandler.getUserID()+'?access_token='+dataHandler.getAccessToken();
+    console.log(url);
+    const req = await fetch(url, {
+      method: 'GET',
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log("Cheguei aqui!")
+    const userData = await req.json();
     setMenuVisible(false)
-    navigation.navigate('Perfil', {dataHandler: dataHandler})
+    navigation.navigate('Perfil', {userData: userData, dataHandler: dataHandler})
   }
 
   const Sair = () => {
