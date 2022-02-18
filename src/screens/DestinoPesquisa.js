@@ -91,7 +91,7 @@ const ItemArea = styled.TouchableHighlight`
 `;
 
 export default function DestinoPesquisa({navigation, route}) {
-    const [dataSource] = useState(Data.Cities);
+    const [dataSource] = useState(route.params.cities);
     const [filtered, setFiltered] = useState(dataSource);
     const [destino, setDestino] = useState('');
     const OnSearch = (text) => {
@@ -109,8 +109,6 @@ export default function DestinoPesquisa({navigation, route}) {
             setFiltered(dataSource);
         }
     }
-
-    
 
     const Select = (item) => {
       setDestino(item);
@@ -144,7 +142,7 @@ export default function DestinoPesquisa({navigation, route}) {
                             navigator={navigation}
                             underlayColor='#b5b5b5'
                             activeOpacity={0.6}>
-                            <Item>{item}</Item>
+                            <Item>{item.name}</Item>
                             </ItemArea>)
                         })
                     }

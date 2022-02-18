@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Image } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -60,22 +60,32 @@ const Header = styled.View`
   width: 100%;
   background-color: #088A29;
   height: 50px;
-  margin-bottom: 20px;
   align-items: flex-start;
-`;
+  flex-direction: row;
+`;//Area que contem o titulo da tela
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
+`;//Titulo da tela
+
+const BackButton = styled.TouchableHighlight`
+  background-color: #088A29;
+  color: red;
+  font-size: 22px;
+  font-weight: bold;
+  width: 10%;
+  margin-top: 13px;
+  align-items: center;
 `;
 
-export default function Login({navigation}) {
+export default function Login({navigation, route}) {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const aguardarLogin = async () =>{
+  const aguardarLogin = async () => {
     if (password != '' && username != '') {
       //alert("Informações preenchidas: "+username+" - "+password)
       const req = await fetch('http://52.87.215.20:5000/login', {
@@ -93,20 +103,57 @@ export default function Login({navigation}) {
       console.log(json.access_token);
 
       if(json.success == true){
-        DataHandler.token = json.access_token
+        // DataHandler.token = json.access_token
+        route.params.dataHandler.setAccessToken(json.access_token);
+        route.params.dataHandler.setRefreshToken(json.refresh_token);
+        route.params.dataHandler.setUserID(json.user.id);
         navigation.navigate('Pesquisa de Viagens');
        } else {
-        alert('Login Negado - '+json.message);
+        alert('Login Negado - ' + json.message);
       } 
 
     } else {
       alert('Preencha as informações!')
     }
   }
+
+  const recuperarSenha = async () => {
+    if (username != '') {
+      const req = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: "user_7y9VMeaz4iNRQdQIccT2U",
+          service_id: "service_4thk73p",
+          template_id: "template_jkts312",
+          accessToken: "610abaf7b813d67ee86184209b5c700e",
+          template_params: {
+            e_mail: username,
+            password: "teste"
+          }
+        })
+      });
+      
+      console.log(req);
+
+      if(req.status == 200){
+        alert('Email com nova senha enviado!')
+      } else {
+        alert('Erro envio do e-mail')        
+      } 
+    } else {
+      alert('Preencha o e-mail!')
+    }
+  }
   
   return (
     <Page>
       <Header>
+        <BackButton onPress={() => navigation.goBack()} underlayColor='#1ab241'>
+        <Icon name="arrowleft" color="white" size={25}/>
+        </BackButton>
         <HeaderText>Login</HeaderText>
       </Header>
       <Container>
@@ -120,7 +167,7 @@ export default function Login({navigation}) {
         <Button onPress={aguardarLogin}>
           <LoginText>Fazer Login</LoginText>
         </Button>
-        <Button>
+        <Button onPress={recuperarSenha}>
           <SenhaText>Esqueceu a senha?</SenhaText>
         </Button>
         <Button onPress={() => navigation.navigate('Cadastro')}>
