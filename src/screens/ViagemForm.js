@@ -167,17 +167,12 @@ export default function ViagemForm({navigation, route}) {
   const [dataVolta, setDataVolta] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
 
-  console.log("Esse é o token: "+ dataHandler.getAccessToken())
-  console.log("Esse é o refresh: "+ dataHandler.getRefreshToken())
-  console.log("Esse é o ID: "+ dataHandler.getUserID())
-
   const onPressOrigem = async () => {
-    /* const reqCities = await fetch('http://52.87.215.20:5000/city', {
+    const reqCities = await fetch('http://52.87.215.20:5000/city', {
         method: 'GET'
       });
     const jsonCities = await reqCities.json();
-    const cities = jsonCities.cities; */
-    const cities = [{name: "p", id: 1}, {name: "s", id: 2}]
+    const cities = jsonCities.cities;
     navigation.navigate('Pesquisa de Origem', {cities, onReturnOrigem: (item) => {
       setOrigem(item)
     }})
@@ -292,6 +287,10 @@ export default function ViagemForm({navigation, route}) {
     dataHandler.setUserID('');
     navigation.navigate('Pesquisa de Viagens')
   }
+  
+  console.log("Esse é o token: "+ dataHandler.getAccessToken())
+  console.log("Esse é o refresh: "+ dataHandler.getRefreshToken())
+  console.log("Esse é o ID: "+ dataHandler.getUserID())
 
   return (
     <Page>

@@ -105,9 +105,9 @@ export default function Login({navigation, route}) {
 
       if(json.success == true){
         // DataHandler.token = json.access_token
-        /* route.params.dataHandler.setAccessToken(json.access_token);
+        route.params.dataHandler.setAccessToken(json.access_token);
         route.params.dataHandler.setRefreshToken(json.refresh_token);
-        route.params.dataHandler.setUserID(json.user.id); */
+        route.params.dataHandler.setUserID(json.user.id);
         navigation.navigate('Pesquisa de Viagens');
        } else {
         alert('Login Negado - ' + json.message);

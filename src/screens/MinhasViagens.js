@@ -225,7 +225,7 @@ export default function MinhasViagens({navigation, route}) {
             <VoucherArea 
             visible={voucherVisible}
             transparent={true}>
-              <VoucherAreaBody onPressOut={()=>setVoucherVisible(false)}>
+              <VoucherAreaBody onPressOut={()=>setVSoucherVisible(false)}>
                 <TouchableWithoutFeedback>
                   <Box>
                     <Button onPress={() => Voucher()}>
