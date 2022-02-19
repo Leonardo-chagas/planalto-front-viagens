@@ -297,7 +297,7 @@ export default function ViagemForm({navigation, route}) {
       animationType='slide'
       transparent={true}>
         <MenuBody onPressOut={()=>setMenuVisible(false)}>
-          <TouchableWithoutFeedback>
+          {/* <TouchableWithoutFeedback> */}
           {dataHandler.getAccessToken() != '' &&
             <Box>
               <MenuItem onPress={()=>setMenuVisible(false)}>
@@ -353,7 +353,7 @@ export default function ViagemForm({navigation, route}) {
               </MenuItem>
             </Box>
             }
-          </TouchableWithoutFeedback>
+          {/* </TouchableWithoutFeedback> */}
         </MenuBody>
       </Menu>
 

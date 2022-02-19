@@ -96,6 +96,12 @@ const TitleText = styled.Text`
   font-weight: bold;
 `;
 
+const SenhaText = styled.Text`
+  color: #2E9AFE;
+  font-size: 18px;
+  text-align: right;
+`;
+
 const styles = StyleSheet.create({
   item: {
     fontSize: 18,
@@ -126,6 +132,21 @@ export default function Cadastro ({navigation, route}) {
   const [cidade, setCidade] = useState(route.params.userData.user.city);
   const [estado, setEstado] = useState(route.params.userData.user.state);
 
+
+  // const [nome, setNome] = useState('');
+  // const [documento, setDocumento] = useState('');
+  // // const [datanascimento, setDataNascimento] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [tipotelefone, setTipoTelefone] = useState('');
+  // const [telefone, setTelefone] = useState('');
+  // const [cep, setCep] = useState('');
+  // const [rua, setRua] = useState('');
+  // const [numero, setNumero] = useState('');
+  // const [complemento, setComplemento] = useState('');
+  // const [bairro, setBairro] = useState('');
+  // const [cidade, setCidade] = useState('');
+  // const [estado, setEstado] = useState('');
+
   // const [isEnabled, setIsEnabled] = useState(false);
   // const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
@@ -145,6 +166,9 @@ export default function Cadastro ({navigation, route}) {
         <TitleText>Dados Pessoais</TitleText>
       </Title>
       <Container>
+        <Button onPress={() => navigation.navigate('Senha', {email: email})}>
+          <SenhaText>Alterar Senha</SenhaText>
+        </Button>
         <InputView>
           <Input value={nome} onChangeText={t=>setNome(t)} placeholder={'Nome completo'}/>
         </InputView>
