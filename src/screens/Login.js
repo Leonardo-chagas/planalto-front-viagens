@@ -88,7 +88,7 @@ export default function Login({navigation, route}) {
   const aguardarLogin = async () => {
     if (password != '' && username != '') {
       //alert("Informações preenchidas: "+username+" - "+password)
-      const req = await fetch('http://52.87.215.20:5000/login', {
+      /* const req = await fetch('http://52.87.215.20:5000/login', {
         method: 'POST',
         body: JSON.stringify({
           //username: username,
@@ -100,13 +100,14 @@ export default function Login({navigation, route}) {
         }
       });
       const json = await req.json();
-      console.log(json.access_token);
+      console.log(json.access_token); */
+      const json = {success: true};
 
       if(json.success == true){
         // DataHandler.token = json.access_token
-        route.params.dataHandler.setAccessToken(json.access_token);
+        /* route.params.dataHandler.setAccessToken(json.access_token);
         route.params.dataHandler.setRefreshToken(json.refresh_token);
-        route.params.dataHandler.setUserID(json.user.id);
+        route.params.dataHandler.setUserID(json.user.id); */
         navigation.navigate('Pesquisa de Viagens');
        } else {
         alert('Login Negado - ' + json.message);

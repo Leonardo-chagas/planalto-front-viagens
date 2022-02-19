@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import styled from 'styled-components/native';
 import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
-import QRCode from 'react-native-qrcode-svg';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -24,6 +23,20 @@ const HeaderText = styled.Text`
   font-size: 22px;
   padding: 10px;
 `;//Titulo da tela
+
+const Button = styled.TouchableHighlight`
+  margin-bottom: 10px;
+  width: 100%;  
+`;
+
+const LoginText = styled.Text`
+  color: white;
+  background-color: #04B431;
+  font-size: 22px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+`;
 
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
@@ -117,28 +130,74 @@ background-color: rgba(0, 0, 0, 0.3);
 `;
 
 const Box = styled.View`
-width: 60%;
-height: 70%
+width: 80%;
+height: 50%
 background-color: white;
 position: absolute;
-left: 20%;
-top: 20%;
+left: 10%;
+top: 30%;
 align-items: center;
 justify-content: center;
+padding: 10px;
 `;
 
 export default function MinhasViagens({navigation, route}) {
 
   const [screen, setScreen] = useState(0);
   const [voucherVisible, setVoucherVisible] = useState(false);
-  const [qrcode, setQRcode] = useState('');
   const [ret, setRet] = useState(route.params.ret)
   const [dev, setDev] = useState(route.params.dev)
   const [fin, setFin] = useState(route.params.fin)
+  const [currentItem, setCurrentItem] = useState();
 
-  const ViewVoucher = (code) => {
-    setQRcode(code);
+  const ViewVoucher = (item) => {
     setVoucherVisible(true);
+    setCurrentItem(item);
+  }
+
+  const OnPressTrocarViagem = async () => {
+    const dia = new Date().getDate();
+    const mes = new Date().getMonth()+1;
+    const ano = new Date().getFullYear();
+    const req = await fetch('http://52.87.215.20:5000/trip');
+    const json = req.json();
+    var viagens = [];
+    if(json.success){
+      json.trips.forEach(item => {
+        const viagemDia = new Date(item.tripdate).getDate();
+        const viagemMes = new Date(item.tripdate).getMonth()+1;
+        const viagemAno = new Date(item.tripdate).getFullYear();
+        if(item.origin.id == currentItem.origin.id && item.destination.id == currentItem.destination.id &&
+          viagemAno >= ano){
+            viagens.push(item);
+        }
+      })
+    }
+  }
+
+  const OnPressCancelarViagem = async () => {
+    const req = await fetch('http://52.87.215.20:5000/reservation/' + currentItem.id, {
+          method: 'Delete',
+          body: JSON.stringify({
+            access_token: DataHandler.token
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        });
+        const json = await req.json();
+        if(json.success == true){
+          alert('Viagem Cancelada com sucesso');
+          
+        }
+        else{
+          alert("Não foi possível cancelar a viagem");
+        }
+  }
+
+  const Voucher = () => {
+    setVoucherVisible(false);
+    navigation.navigate("Voucher");
   }
 
     return (
@@ -169,11 +228,15 @@ export default function MinhasViagens({navigation, route}) {
               <VoucherAreaBody onPressOut={()=>setVoucherVisible(false)}>
                 <TouchableWithoutFeedback>
                   <Box>
-                    <QRCode
-                    value='Some string value'
-                    color={'black'}
-                    backgroundColor={'white'}
-                    size={150}/>
+                    <Button onPress={() => Voucher()}>
+                      <LoginText>Visualizar Voucher</LoginText>
+                    </Button>
+                    <Button onPress={OnPressTrocarViagem}>
+                      <LoginText>Trocar Data da Viagem</LoginText>
+                    </Button>
+                    <Button onPress={OnPressCancelarViagem}>
+                      <LoginText>Cancelar Viagem</LoginText>
+                    </Button>
                   </Box>
                 </TouchableWithoutFeedback>
               </VoucherAreaBody>
@@ -185,12 +248,12 @@ export default function MinhasViagens({navigation, route}) {
                       {
                         ret.map(item=>{
                           return(
-                        <ItemArea>
+                        <ItemArea key={item.id}>
                           <Item>{item.origem} ------{'>'} {item.destino}</Item>
                           <Item>Data: {item.dataIda}</Item>
                           <Item>Valor Total: R$ {item.valor}</Item>
-                          <VoucherLink onPress={()=>ViewVoucher(item.code)}>
-                            <VoucherText>Vizualizar Voucher</VoucherText>
+                          <VoucherLink onPress={()=>ViewVoucher(item)}>
+                            <VoucherText>Opções</VoucherText>
                           </VoucherLink>
                         </ItemArea>)
                         })
@@ -204,7 +267,7 @@ export default function MinhasViagens({navigation, route}) {
                       {
                         dev.map(item=>{
                           return(
-                        <ItemArea>
+                        <ItemArea key={item.id}>
                             <Item>{item.origem} ------{'>'} {item.destino}</Item>
                             <Item>Data: {item.dataIda}</Item>
                             <Item>NSU: {item.nsu}</Item>
@@ -220,7 +283,7 @@ export default function MinhasViagens({navigation, route}) {
                       {
                         fin.map(item=>{
                         return(
-                      <ItemArea>
+                      <ItemArea key={item.id}>
                         <Item>{item.origem} ------{'>'} {item.destino}</Item>
                         <Item>Data: {item.dataIda}</Item>
                         <Item>NSU: {item.nsu}</Item>

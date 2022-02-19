@@ -134,7 +134,16 @@ export default function ViagemForm({navigation, route}) {
   const dia = new Date().getDate();
   const mes = new Date().getMonth()+1;
   const ano = new Date().getFullYear();
-  const data = dia + '/' + mes + '/' + ano;
+  /* const numeroDia = Number(dia);
+  const numeroMes */
+  var mesReal = mes;
+  var diaReal = dia;
+  if(mes < 10)
+    mesReal = '0' + mes;
+  if(dia<10)
+    diaReal = '0' + dia;
+  
+  const data = diaReal + '/' + mesReal + '/' + ano;
 
   var novoMes = Number(mes)+2;
   var novoAno = Number(ano);
@@ -143,47 +152,58 @@ export default function ViagemForm({navigation, route}) {
     novoAno += 1;
   }
 
-  const ultimoMes = novoMes.toString();
+  var ultimoMes;
+  if(novoMes<10)
+    ultimoMes = '0' + novoMes.toString();
+  else
+    ultimoMes = novoMes.toString();
   const ultimoAno = novoAno.toString();
-  const ultimaData = '31/' + ultimoMes + '/' + ultimoAno;
+  const ultimaData = '28/' + ultimoMes + '/' + ultimoAno;
 
-  const [origem, setOrigem] = useState('');
-  const [destino, setDestino] = useState('');
+  const [origem, setOrigem] = useState({name: ''});
+  const [destino, setDestino] = useState({name: ''});
   const [dataIda, setDataIda] = useState(data);
+  const [maxData] = useState(ultimaData);
   const [dataVolta, setDataVolta] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const onPressOrigem = () => {
-    navigation.navigate('Pesquisa de Origem', {onReturnOrigem: (item) => {
+  console.log("Esse é o token: "+ dataHandler.getAccessToken())
+  console.log("Esse é o refresh: "+ dataHandler.getRefreshToken())
+  console.log("Esse é o ID: "+ dataHandler.getUserID())
+
+  const onPressOrigem = async () => {
+    /* const reqCities = await fetch('http://52.87.215.20:5000/city', {
+        method: 'GET'
+      });
+    const jsonCities = await reqCities.json();
+    const cities = jsonCities.cities; */
+    const cities = [{name: "p", id: 1}, {name: "s", id: 2}]
+    navigation.navigate('Pesquisa de Origem', {cities, onReturnOrigem: (item) => {
       setOrigem(item)
     }})
   }
-  
-  const onPressDestino = () => {
-    navigation.navigate('Pesquisa de Destino', {onReturnDestino: (item) => {
+
+  const onPressDestino = async () => {
+    const reqCities = await fetch('http://52.87.215.20:5000/city', {
+        method: 'GET'
+      });
+    const jsonCities = await reqCities.json();
+    const cities = jsonCities.cities;
+    navigation.navigate('Pesquisa de Destino', {cities, onReturnDestino: (item) => {
       setDestino(item)
     }})
   }
 
   const Buscar = async () => {
     if(origem && destino && dataIda){
-      var origemID = 0;
-      var destinoID = 0;
-      const reqCities = await fetch('http://52.87.215.20:5000/city');
-      const jsonCities = await reqCities.json();
-      jsonCities.cities.forEach(item => {
-        if(item.name == origem)
-          origemID = item.id;
-        if(item.name == destino)
-          destinoID = item.id;
-      });
-      const ida = dataIda;
+      const dataArray = dataIda.split('/');
+      const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
       const req = await fetch('http://52.87.215.20:5000/tripByDate', {
         method: 'POST',
         body: JSON.stringify({
-          tripdate: dataIda,
-          origin_id: origemID,
-          destination_id: destinoID
+          tripdate: dataCerta,
+          origin_id: origem.id,
+          destination_id: destino.id
         }),
         headers:{
           'Content-type': 'application/json'
@@ -191,34 +211,52 @@ export default function ViagemForm({navigation, route}) {
       });
       var viagens = [];
       const json = await req.json();
-      json.trips.forEach(item => {
-        viagens.push({dataIda:item.tripdate, preco:item.price, id:item.id, busID: item.bus_id});
-      })
-      //const viagens = [{ida:'12/03/2021',assentos:32, preco:102.09, id: 123}];
-      dataHandler.setOrigem(origem);
-      dataHandler.setDestino(destino);
-      dataHandler.setDataIda(dataIda);
-      navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
+      if(json.success){
+        json.trips.forEach(item => {
+          viagens.push({dataIda:item.tripdate, preco:item.price, id:item.id, busID: item.bus_id});
+        })
+        //const viagens = [{ida:'12/03/2021',assentos:32, preco:102.09, id: 123}];
+        dataHandler.setOrigem(origem);
+        dataHandler.setDestino(destino);
+        dataHandler.setDataIda(dataIda);
+        navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
+      }
+      else{
+        alert('Não foi encontrada nenhuma viagem para esta data');
+      }
     }
     else{
       alert('Preencha os campos obrigatórios');
     }
   }
-
-  const MinhasViagens = () => {
+  
+  const MinhasViagens = async () => {
     var ret = [];
     var dev = [];
     var fin = [];
 
-    ret = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value'},
-          {origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value'}];
+    ret = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 9},
+          {origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 10}];
 
-    dev = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184'}];
+    dev = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}];
 
-    fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184'}];
-    
-    setMenuVisible(false)
-    navigation.navigate('Minhas Viagens', {ret: ret, dev: dev, fin: fin})
+    fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}];
+
+    /* const req = await fetch('http://52.87.215.20:5000/reservation', {
+          method: 'GET',
+          body: JSON.stringify({
+            access_token: DataHandler.token,
+            trip_id: DataHandler.viagemID,
+            seat_id: DataHandler.assentoID
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        });
+        const json = await req.json(); */
+
+    setMenuVisible(false);
+    navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin})
   }
 
   const Login = () => {
@@ -254,255 +292,155 @@ export default function ViagemForm({navigation, route}) {
     dataHandler.setUserID('');
     navigation.navigate('Pesquisa de Viagens')
   }
-  
-  console.log("Esse é o token: "+ dataHandler.getAccessToken())
-  console.log("Esse é o refresh: "+ dataHandler.getRefreshToken())
-  console.log("Esse é o ID: "+ dataHandler.getUserID())
-  if (dataHandler.getAccessToken() == '') {
-    console.log("Entrei aqui, estou sem token!")
-    return (
-      <Page>
-        <Menu visible={menuVisible}
-          animationType='slide'
-          transparent={true}>
-          <MenuBody onPressOut={()=>setMenuVisible(false)}>
-            <TouchableWithoutFeedback>
-              <Box>
-                <MenuItem onPress={()=>setMenuVisible(false)}>
-                  <View>
-                    <Icon name="home" color="#aaaaaa" size={25}/>
-                    <MenuItemText>Home</MenuItemText>
-                  </View>
-                </MenuItem>
-  
-                <MenuItem onPress={()=>Login()}>
-                  <View>
-                    <Icon name="lock-open" color="#aaaaaa" size={25}/>
-                    <MenuItemText>Entrar</MenuItemText>
-                  </View>
-                </MenuItem>
-  
-                <MenuItem onPress={()=>Cadastrar()}>
-                  <View>
-                    <Icon name="lock-open"  color="#aaaaaa" size={25}/>
-                    <MenuItemText>Cadastrar</MenuItemText>
-                  </View>
-                </MenuItem>
 
-              </Box>
-            </TouchableWithoutFeedback>
-          </MenuBody>
-        </Menu>
-  
-        <Header>
-          <MenuButton onPress={()=>setMenuVisible(true)}>
-            <Icon name='menu' size={25} color="white"/>
-          </MenuButton>
-          <HeaderText>Pesquisa de Viagens</HeaderText>
-        </Header>
-  
-        <Container>
-          <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
-          <Touchable onPress={onPressOrigem}>
-          <InputView>
-            <Input 
-              placeholder={'Escolha sua Origem'}
-              editable={false}
-              onTouchStart={onPressOrigem}
-              value={origem}
-            />
-          </InputView>
-          </Touchable>
-          <Touchable onPress={onPressDestino}>
-          <InputView>
-            <Input 
-              placeholder={'Escolha seu Destino'}
-              editable={false}
-              onTouchStart={onPressDestino}
-              value={destino}/>
-          </InputView>
-          </Touchable>
-          <InputView>
-            <DatePicker
-              style={styles.datePickerStyle}
-              date={dataIda}
-              mode="date"
-              placeholder="Escolha a data de ida"
-              format="YYYY-MM-DD"
-              minDate={data}
-              maxDate={ultimaData}
-              confirmBtnText="Confirmar"
-              cancelBtnText="Cancelar"
-              customStyles={{
-                dateIcon: {
-                  position: 'absolute',
-                  left: 0,
-                  top: 4,
-                  marginLeft: 0,
-                },
-                dateInput: {
-                  marginLeft: 36,
-                  borderWidth: 0,
-                },
-              }}
-              onDateChange={(dataIda) => {setDataIda(dataIda)}}/>
-          </InputView>
-          <InputView>
-            <DatePicker
-              style={styles.datePickerStyle}
-              date={dataVolta}
-              mode="date"
-              placeholder="Escolha a data de volta (opcional)"
-              format="DD/MM/YYYY"
-              minDate={data}
-              maxDate={ultimaData}
-              confirmBtnText="Confirmar"
-              cancelBtnText="Cancelar"
-              customStyles={{
-                dateIcon: {
-                  position: 'absolute',
-                  left: 0,
-                  top: 4,
-                  marginLeft: 0,
-                },
-                dateInput: {
-                  marginLeft: 36,
-                  borderWidth: 0,
-                },
-              }}
-              onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>
-          </InputView>
-          <Button onPress={Buscar}>
-            <LoginText>Buscar</LoginText>
-          </Button>
-        </Container>
-      </Page>
-    );
-  } else {
-    console.log("Entrei aqui, estou com token!")
-    return (
-      <Page>
-        <Menu visible={menuVisible}
-          animationType='slide'
-          transparent={true}>
-          <MenuBody onPressOut={()=>setMenuVisible(false)}>
-            <TouchableWithoutFeedback>
-              <Box>
-                <MenuItem onPress={()=>setMenuVisible(false)}>
-                  <View>
-                    <Icon name="home" color="#aaaaaa" size={25}/>
-                    <MenuItemText>Home</MenuItemText>
-                  </View>
-                </MenuItem>
+  return (
+    <Page>
+      <Menu visible={menuVisible}
+      animationType='slide'
+      transparent={true}>
+        <MenuBody onPressOut={()=>setMenuVisible(false)}>
+          {/* <TouchableWithoutFeedback> */}
+          {dataHandler.getAccessToken() != '' &&
+            <Box>
+              <MenuItem onPress={()=>setMenuVisible(false)}>
+                <View>
+                  <Icon name="home" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Home</MenuItemText>
+                </View>
+              </MenuItem>
 
-                <MenuItem onPress={()=>Perfil()}>
-                  <View>
-                    <Icon name="user"  color="#aaaaaa" size={25}/>
-                    <MenuItemText>Perfil</MenuItemText>
-                  </View>
-                </MenuItem>
-  
-                <MenuItem onPress={()=>MinhasViagens()}>
-                  <View>
-                    <IconAwesome name="bus" color="#aaaaaa" size={25}/>
-                    <MenuItemText>Minhas Viagens</MenuItemText>
-                  </View>
-                </MenuItem>
-  
-                <MenuItem onPress={()=>Sair()}>
-                  <View>
-                    <Icon name="log-out" color="#aaaaaa" size={25}/>
-                    <MenuItemText>Sair</MenuItemText>
-                  </View>
-                </MenuItem>
-              </Box>
-            </TouchableWithoutFeedback>
-          </MenuBody>
-        </Menu>
-  
-        <Header>
-          <MenuButton onPress={()=>setMenuVisible(true)}>
-            <Icon name='menu' size={25} color="white"/>
-          </MenuButton>
-          <HeaderText>Pesquisa de Viagens</HeaderText>
-        </Header>
-  
-        <Container>
-          <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
-          <Touchable onPress={onPressOrigem}>
-          <InputView>
-            <Input 
-              placeholder={'Escolha sua Origem'}
-              editable={false}
-              onTouchStart={onPressOrigem}
-              value={origem}
-            />
-          </InputView>
-          </Touchable>
-          <Touchable onPress={onPressDestino}>
-          <InputView>
-            <Input 
-              placeholder={'Escolha seu Destino'}
-              editable={false}
-              onTouchStart={onPressDestino}
-              value={destino}/>
-          </InputView>
-          </Touchable>
-          <InputView>
-            <DatePicker
-              style={styles.datePickerStyle}
-              date={dataIda}
-              mode="date"
-              placeholder="Escolha a data de ida"
-              format="YYYY-MM-DD"
-              minDate={data}
-              maxDate={ultimaData}
-              confirmBtnText="Confirmar"
-              cancelBtnText="Cancelar"
-              customStyles={{
-                dateIcon: {
-                  position: 'absolute',
-                  left: 0,
-                  top: 4,
-                  marginLeft: 0,
-                },
-                dateInput: {
-                  marginLeft: 36,
-                  borderWidth: 0,
-                },
-              }}
-              onDateChange={(dataIda) => {setDataIda(dataIda)}}/>
-          </InputView>
-          <InputView>
+              <MenuItem onPress={()=>Perfil()}>
+                <View>
+                  <Icon name="user"  color="#aaaaaa" size={25}/>
+                  <MenuItemText>Perfil</MenuItemText>
+                </View>
+              </MenuItem>
+
+              <MenuItem onPress={()=>MinhasViagens()}>
+                <View>
+                  <IconAwesome name="bus" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Minhas Viagens</MenuItemText>
+                </View>
+              </MenuItem>
+
+              <MenuItem onPress={()=>Sair()}>
+                <View>
+                  <Icon name="log-out" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Sair</MenuItemText>
+                </View>
+              </MenuItem>
+            </Box>
+            }
+            {dataHandler.getAccessToken() == '' &&
+              <Box>
+              <MenuItem onPress={()=>setMenuVisible(false)}>
+                <View>
+                  <Icon name="home" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Home</MenuItemText>
+                </View>
+              </MenuItem>
+
+              <MenuItem onPress={()=>Login()}>
+                <View>
+                  <Icon name="lock-open" color="#aaaaaa" size={25}/>
+                  <MenuItemText>Entrar</MenuItemText>
+                </View>
+              </MenuItem>
+
+              <MenuItem onPress={()=>Cadastrar()}>
+                <View>
+                  <Icon name="lock-open"  color="#aaaaaa" size={25}/>
+                  <MenuItemText>Cadastrar</MenuItemText>
+                </View>
+              </MenuItem>
+            </Box>
+            }
+          {/* </TouchableWithoutFeedback> */}
+        </MenuBody>
+      </Menu>
+
+      <Header>
+        <MenuButton onPress={() => setMenuVisible(true)}>
+          <Icon name='menu' size={25} color="white"/>
+        </MenuButton>
+        <HeaderText>Pesquisa de Viagens</HeaderText>
+      </Header>
+
+      <Container>
+        <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
+        <Touchable onPress={onPressOrigem}>
+        <InputView>
+          <Input 
+          placeholder={'Escolha sua Origem'}
+          editable={false}
+          onTouchStart={onPressOrigem}
+          value={origem.name}
+          />
+        </InputView>
+        </Touchable>
+        <Touchable onPress={onPressDestino}>
+        <InputView>
+          <Input 
+          placeholder={'Escolha seu Destino'}
+          editable={false}
+          onTouchStart={onPressDestino}
+          value={destino.name}/>
+        </InputView>
+        </Touchable>
+        <InputView>
           <DatePicker
-            style={styles.datePickerStyle}
-            date={dataVolta}
-            mode="date"
-            placeholder="Escolha a data de volta (opcional)"
-            format="DD/MM/YYYY"
-            minDate={data}
-            maxDate={ultimaData}
-            confirmBtnText="Confirmar"
-            cancelBtnText="Cancelar"
-            customStyles={{
-              dateIcon: {
-                position: 'absolute',
-                left: 0,
-                top: 4,
-                marginLeft: 0,
-              },
-              dateInput: {
-                marginLeft: 36,
-                borderWidth: 0,
-              },
-            }}
-            onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>
-          </InputView>
-          <Button onPress={Buscar}>
-            <LoginText>Buscar</LoginText>
-          </Button>
-        </Container>
-      </Page>
-    );
-  }
+          style={styles.datePickerStyle}
+          date={dataIda}
+          mode="date"
+          placeholder="Escolha a data de ida"
+          format="DD/MM/YYYY"
+          minDate={data}
+          maxDate={ultimaData}
+          confirmBtnText="Confirmar"
+          cancelBtnText="Cancelar"
+          customStyles={{
+            dateIcon: {
+              position: 'absolute',
+              left: 0,
+              top: 4,
+              marginLeft: 0,
+            },
+            dateInput: {
+              marginLeft: 36,
+              borderWidth: 0,
+            },
+          }}
+          onDateChange={(dataIda) => setDataIda(dataIda)}/>
+        </InputView>
+        <InputView>
+        <DatePicker
+        style={styles.datePickerStyle}
+        date={dataVolta}
+        mode="date"
+        placeholder="Escolha a data de volta (opcional)"
+        format="DD/MM/YYYY"
+        minDate={data}
+        maxDate={ultimaData}
+        confirmBtnText="Confirmar"
+        cancelBtnText="Cancelar"
+        customStyles={{
+          dateIcon: {
+            position: 'absolute',
+            left: 0,
+            top: 4,
+            marginLeft: 0,
+          },
+          dateInput: {
+            marginLeft: 36,
+            borderWidth: 0,
+          },
+        }}
+        onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>
+        </InputView>
+        <Button onPress={Buscar}>
+          <LoginText>Buscar</LoginText>
+        </Button>
+      </Container>
+    </Page>
+  );
 }

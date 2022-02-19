@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { View } from 'react-native';
 import styled from 'styled-components/native';
-import Data from './cities.json'
+import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
@@ -23,29 +24,9 @@ const HeaderText = styled.Text`
   padding: 10px;
 `;//Titulo da tela
 
-const InputView = styled.View`
-  background-color: #088A29;
-  width: 100%;
-  padding-left: 50px;
-`
-
-const Input = styled.TextInput`
-  background-color: #088A29;
-  color: white;
-  width: 80%;
-  height: 50px;
-  font-size: 20px;
-  font-weight: bold;
-  padding-horizontal: 10px;
-  border-bottom-width: 1px;
-  border-bottom-color: white;
-  margin-bottom: 10px;
-  padding-left: 10px;
-`;
-
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
-  top: 25%;
+  top: 15%;
   left: 0px;
   right: 0px;
   bottom: 0px;
@@ -79,8 +60,6 @@ const ButtonSymbol = styled.Text`
 
 const Item = styled.Text`
   font-size: 22px;
-  border-bottom-width: 1px;
-  border-bottom-color: #A4A4A4;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -88,32 +67,30 @@ const Item = styled.Text`
 
 const ItemArea = styled.TouchableHighlight`
   width: 100%;
+  border-width: 1px;
+  border-color: #A4A4A4;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background-color: white;
 `;
 
-export default function OrigemPesquisa({navigation, route}) {
-    const [dataSource] = useState(route.params.cities);
-    const [filtered, setFiltered] = useState(dataSource);
-    const [origem, setOrigem] = useState('');
-    const OnSearch = (text) => {
-        setOrigem(text);
-        if(text){
-            const temp = text.toString().toLowerCase();
+export default function TrocarViagem({navigation, route}) {
+    const [viagens, setViagens] = useState(route.params.viagens);
+    const [origem, setOrigem] = useState(route.params.origem);
+    const [destino, setDestino] = useState(route.params.destino);
+    const [dataIda, setDataIda] = useState(route.params.dataIda);
 
-            const tempList = dataSource.filter(item=>{
-                if(item.toString().toLowerCase().startsWith(temp))
-                return item
-            })
-            setFiltered(tempList);
-        }
-        else{
-            setFiltered(dataSource);
-        }
-    }
-
-    const Select = (item) => {
-      setOrigem(item);
-      route.params.onReturnOrigem(item);
-      navigation.goBack();
+    const SelecionarViagem = async (id, busID) => {
+      var busSeats = [];
+      const req = await fetch('http://52.87.215.20:5000/seat');
+      const json = await req.json();
+      json.seats.forEach(item => {
+        if(item.bus_id == busID){
+          busSeats.push(item);
+      }
+    });
+    //busSeats = [1, 2, 3, 4, 5];
+    navigation.navigate('Trocar Assento', {seats: busSeats, origem: origem, destino: destino, dataIda: dataIda, id:id});
     }
 
     return (
@@ -123,32 +100,28 @@ export default function OrigemPesquisa({navigation, route}) {
                 underlayColor='#1ab241'>
                     <Icon name="arrowleft" color="white" size={25}/>
                 </BackButton>
-                <HeaderText>Selecione sua Origem</HeaderText>
+                <HeaderText>Viagens</HeaderText>
             </Header>
-            <InputView>
-              <Input
-              placeholder={'Ex: Pelotas'}
-              onChangeText={OnSearch}
-              value={origem}
-              />
-            </InputView>
            
                 <SearchDropdownArea>
                     <SearchDropdown>
                     {
-                        filtered.map(item=>{
+                        viagens.map(item=>{
                             return(
-                            <ItemArea onPress={() => Select(item)}
+                            <ItemArea onPress={() => ComprarViagem(item.id, item.busID)}
                             navigator={navigation}
                             underlayColor='#b5b5b5'
                             activeOpacity={0.6}>
-                            <Item>{item.name}</Item>
+                            <View>
+                                <Item>Ida: {item.dataIda}</Item>
+                                <Item>Assentos disponíveis: {32}</Item>
+                                <Item>Preço: R${item.preco}</Item>
+                            </View>
                             </ItemArea>)
                         })
                     }
                     </SearchDropdown>
                 </SearchDropdownArea>
-            
         </Page>
     );
 }

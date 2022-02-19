@@ -6,7 +6,7 @@ class DataHandler {
         this.assento = '';
         this.viagemID = 0;
         this.assentoID = 0;
-        this.accessToken = '';
+        this.accessToken = 'fiwir';
         this.refreshToken = '';
         this.userID = '';
     };

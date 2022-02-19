@@ -90,7 +90,7 @@ const LoginText = styled.Text`
   text-align: center;
 `;
 
-export default function Confirmar({navigation, route}) {
+export default function TrocarConfirmar({navigation, route}) {
     const [origem, setOrigem] = useState(route.params.origem);
     const [destino, setDestino] = useState(route.params.destino);
     const [dataIda, setDataIda] = useState(route.params.dataIda);
@@ -98,7 +98,7 @@ export default function Confirmar({navigation, route}) {
 
     const Confirmar = async () => {
       const req = await fetch('http://52.87.215.20:5000/reservation', {
-          method: 'POST',
+          method: 'UPDATE',
           body: JSON.stringify({
             access_token: DataHandler.token,
             trip_id: DataHandler.viagemID,
@@ -129,10 +129,10 @@ export default function Confirmar({navigation, route}) {
                     <SearchDropdown>
                         <ItemArea>
                             <View>
-                                <Item>Origem: {DataHandler.origem}</Item>
-                                <Item>Destino: {DataHandler.destino}</Item>
-                                <Item>Data: {DataHandler.dataIda}</Item>
-                                <Item>Assento: {DataHandler.assento}</Item>
+                                <Item>Origem: {origem}</Item>
+                                <Item>Destino: {destino}</Item>
+                                <Item>Data: {dataIda}</Item>
+                                <Item>Assento: {assento}</Item>
                                 <Button onPress={() => Confirmar()}>
                                     <LoginText>Confirmar</LoginText>
                                 </Button>

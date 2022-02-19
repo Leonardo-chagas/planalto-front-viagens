@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import styled from 'styled-components/native';
 import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
+import QRCode from 'react-native-qrcode-svg';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -61,18 +62,22 @@ const ButtonSymbol = styled.Text`
 
 const Item = styled.Text`
   font-size: 22px;
-  width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
+  align-items: center;
+  justify-content: center;
 `;
 
-const ItemArea = styled.TouchableHighlight`
+const ItemArea = styled.View`
+  flex: 1;
   width: 100%;
   border-width: 1px;
   border-color: #A4A4A4;
   border-radius: 10px;
   margin-bottom: 10px;
   background-color: white;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Button = styled.TouchableHighlight`
@@ -90,30 +95,7 @@ const LoginText = styled.Text`
   text-align: center;
 `;
 
-export default function Confirmar({navigation, route}) {
-    const [origem, setOrigem] = useState(route.params.origem);
-    const [destino, setDestino] = useState(route.params.destino);
-    const [dataIda, setDataIda] = useState(route.params.dataIda);
-    const [assento, setAssento] = useState(route.params.assento);
-
-    const Confirmar = async () => {
-      const req = await fetch('http://52.87.215.20:5000/reservation', {
-          method: 'POST',
-          body: JSON.stringify({
-            access_token: DataHandler.token,
-            trip_id: DataHandler.viagemID,
-            seat_id: DataHandler.assentoID
-          }),
-          headers:{
-            'Content-Type': 'application/json'
-          }
-        });
-        const json = await req.json();
-        if(json.success == true){
-          alert('Reserva Confirmada');
-          navigation.dispatch(StackActions.pop(3));
-        }
-    }
+export default function Voucher({navigation, route}) {
 
     return (
         <Page>
@@ -122,21 +104,23 @@ export default function Confirmar({navigation, route}) {
                 underlayColor='#1ab241'>
                     <Icon name="arrowleft" color="white" size={25}/>
                 </BackButton>
-                <HeaderText>Confirmação de Reserva</HeaderText>
+                <HeaderText>Voucher da Viagem</HeaderText>
             </Header>
            
                 <SearchDropdownArea>
                     <SearchDropdown>
                         <ItemArea>
-                            <View>
-                                <Item>Origem: {DataHandler.origem}</Item>
-                                <Item>Destino: {DataHandler.destino}</Item>
-                                <Item>Data: {DataHandler.dataIda}</Item>
-                                <Item>Assento: {DataHandler.assento}</Item>
-                                <Button onPress={() => Confirmar()}>
-                                    <LoginText>Confirmar</LoginText>
-                                </Button>
-                            </View>
+                              <Item>{'origem'} -{'>'} {'destino'}</Item>
+                              <Item>{'data'}</Item>
+                              <QRCode
+                              value='Some string value'
+                              color={'black'}
+                              backgroundColor={'white'}
+                              size={150}/>
+                              <Item>Horário: {'hora'}</Item>
+                              <Item>Assento: {'assento'}</Item>
+                              <Item>Ônibus: {'placa'}</Item>
+                              <Item>Status do Pagamento: {'pendente'}</Item>
                         </ItemArea>
                     </SearchDropdown>
                 </SearchDropdownArea>
