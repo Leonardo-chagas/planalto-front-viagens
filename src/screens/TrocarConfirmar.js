@@ -97,7 +97,7 @@ export default function TrocarConfirmar({navigation, route}) {
     const [assento, setAssento] = useState(route.params.assento);
 
     const Confirmar = async () => {
-      const req = await fetch('http://52.87.215.20:5000/reservation', {
+      const req = await fetch('http://34.207.157.190:5000/reservation', {
           method: 'UPDATE',
           body: JSON.stringify({
             access_token: DataHandler.token,

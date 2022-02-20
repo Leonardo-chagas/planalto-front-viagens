@@ -133,7 +133,7 @@ export default function Cadastro ({navigation}) {
   const aguardarCadastro = async () =>{
     if (password != '' && nome != '') {
       console.log(route.params.dataHandler.getUserID());
-      const req = await fetch('http://52.87.215.20:5000/register', {
+      const req = await fetch('http://34.207.157.190:5000/register', {
         method: 'POST',
         body: JSON.stringify({
           name: nome,

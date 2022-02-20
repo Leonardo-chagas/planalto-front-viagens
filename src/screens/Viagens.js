@@ -82,7 +82,7 @@ export default function Viagens({navigation, route}) {
 
     const ComprarViagem = async (id, busID) => {
       var busSeats = [];
-      const req = await fetch('http://52.87.215.20:5000/seat');
+      const req = await fetch('http://34.207.157.190:5000/seat');
       const json = await req.json();
       json.seats.forEach(item => {
         if(item.bus_id == busID){

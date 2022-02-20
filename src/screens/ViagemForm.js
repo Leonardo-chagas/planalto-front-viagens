@@ -168,7 +168,7 @@ export default function ViagemForm({navigation, route}) {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const onPressOrigem = async () => {
-    const reqCities = await fetch('http://52.87.215.20:5000/city', {
+    const reqCities = await fetch('http://34.207.157.190:5000/city', {
         method: 'GET'
       });
     const jsonCities = await reqCities.json();
@@ -179,7 +179,7 @@ export default function ViagemForm({navigation, route}) {
   }
 
   const onPressDestino = async () => {
-    const reqCities = await fetch('http://52.87.215.20:5000/city', {
+    const reqCities = await fetch('http://34.207.157.190:5000/city', {
         method: 'GET'
       });
     const jsonCities = await reqCities.json();
@@ -193,7 +193,7 @@ export default function ViagemForm({navigation, route}) {
     if(origem && destino && dataIda){
       const dataArray = dataIda.split('/');
       const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
-      const req = await fetch('http://52.87.215.20:5000/tripByDate', {
+      const req = await fetch('http://34.207.157.190:5000/tripByDate', {
         method: 'POST',
         body: JSON.stringify({
           tripdate: dataCerta,
@@ -237,7 +237,7 @@ export default function ViagemForm({navigation, route}) {
 
     fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}];
 
-    /* const req = await fetch('http://52.87.215.20:5000/reservation', {
+    /* const req = await fetch('http://34.207.157.190:5000/reservation', {
           method: 'GET',
           body: JSON.stringify({
             access_token: DataHandler.token,
@@ -249,6 +249,10 @@ export default function ViagemForm({navigation, route}) {
           }
         });
         const json = await req.json(); */
+
+    const req = await fetch('http://34.207.157.190:5000/reservation?access_token=' + dataHandler.getAccessToken());
+    const json = await req.json();
+    console.log(json);
 
     setMenuVisible(false);
     navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin})
@@ -266,7 +270,7 @@ export default function ViagemForm({navigation, route}) {
 
   const Perfil = async() => {
 
-    const url = 'http://52.87.215.20:5000/user/'+dataHandler.getUserID()+'?access_token='+dataHandler.getAccessToken();
+    const url = 'http://34.207.157.190:5000/user/'+dataHandler.getUserID()+'?access_token='+dataHandler.getAccessToken();
     console.log(url);
     const req = await fetch(url, {
       method: 'GET',

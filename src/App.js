@@ -43,18 +43,6 @@ export default () => {
         name='Voucher'
         component={Voucher}/>
       <Stack.Screen
-        name='Trocar Viagem'
-        component={TrocarViagem}/>
-      <Stack.Screen
-        name='Trocar Assento'
-        component={TrocarAssento}/>
-      <Stack.Screen
-        name='Trocar Confirmar'
-        component={TrocarConfirmar}/>
-      <Stack.Screen
-        name='Voucher'
-        component={Voucher}/>
-      <Stack.Screen
         name='Login'
         component={Login}/>
       <Stack.Screen

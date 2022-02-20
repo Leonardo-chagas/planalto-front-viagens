@@ -97,7 +97,7 @@ export default function Confirmar({navigation, route}) {
     const [assento, setAssento] = useState(route.params.assento);
 
     const Confirmar = async () => {
-      const req = await fetch('http://52.87.215.20:5000/reservation', {
+      const req = await fetch('http://34.207.157.190:5000/reservation', {
           method: 'POST',
           body: JSON.stringify({
             access_token: DataHandler.token,

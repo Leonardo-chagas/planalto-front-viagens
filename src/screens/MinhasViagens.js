@@ -159,7 +159,7 @@ export default function MinhasViagens({navigation, route}) {
     const dia = new Date().getDate();
     const mes = new Date().getMonth()+1;
     const ano = new Date().getFullYear();
-    const req = await fetch('http://52.87.215.20:5000/trip');
+    const req = await fetch('http://34.207.157.190:5000/trip');
     const json = req.json();
     var viagens = [];
     if(json.success){
@@ -176,7 +176,7 @@ export default function MinhasViagens({navigation, route}) {
   }
 
   const OnPressCancelarViagem = async () => {
-    const req = await fetch('http://52.87.215.20:5000/reservation/' + currentItem.id, {
+    const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
           method: 'Delete',
           body: JSON.stringify({
             access_token: DataHandler.token
