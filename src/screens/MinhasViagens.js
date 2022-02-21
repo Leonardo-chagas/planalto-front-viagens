@@ -177,16 +177,16 @@ export default function MinhasViagens({navigation, route}) {
 
   const OnPressCancelarViagem = async () => {
     const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
-          method: 'Delete',
+          method: 'DELETE',
           body: JSON.stringify({
-            access_token: DataHandler.token
+            access_token: route.params.dataHandler.getAccessToken()
           }),
           headers:{
             'Content-Type': 'application/json'
           }
         });
         const json = await req.json();
-        if(json.success == true){
+        if(json.success){
           alert('Viagem Cancelada com sucesso');
           
         }
@@ -225,7 +225,7 @@ export default function MinhasViagens({navigation, route}) {
             <VoucherArea 
             visible={voucherVisible}
             transparent={true}>
-              <VoucherAreaBody onPressOut={()=>setVSoucherVisible(false)}>
+              <VoucherAreaBody onPressOut={()=>setVoucherVisible(false)}>
                 <TouchableWithoutFeedback>
                   <Box>
                     <Button onPress={() => Voucher()}>
@@ -249,9 +249,9 @@ export default function MinhasViagens({navigation, route}) {
                         ret.map(item=>{
                           return(
                         <ItemArea key={item.id}>
-                          <Item>{item.origem} ------{'>'} {item.destino}</Item>
-                          <Item>Data: {item.dataIda}</Item>
-                          <Item>Valor Total: R$ {item.valor}</Item>
+                          <Item>{item.origin} ------{'>'} {item.destination}</Item>
+                          <Item>Data: {item.tripdate}</Item>
+                          <Item>Valor Total: R$ {String(item.price)}</Item>
                           <VoucherLink onPress={()=>ViewVoucher(item)}>
                             <VoucherText>Opções</VoucherText>
                           </VoucherLink>

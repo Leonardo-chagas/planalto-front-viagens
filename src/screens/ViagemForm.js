@@ -193,6 +193,10 @@ export default function ViagemForm({navigation, route}) {
     if(origem && destino && dataIda){
       const dataArray = dataIda.split('/');
       const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
+      const reqteste = await fetch('http://34.207.157.190:5000/trip');
+      const jsonteste = await reqteste.json();
+      console.log(dataCerta);
+      console.log(jsonteste);
       const req = await fetch('http://34.207.157.190:5000/tripByDate', {
         method: 'POST',
         body: JSON.stringify({
@@ -217,6 +221,7 @@ export default function ViagemForm({navigation, route}) {
         navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
       }
       else{
+        console.log(json.message);
         alert('Não foi encontrada nenhuma viagem para esta data');
       }
     }
@@ -230,32 +235,60 @@ export default function ViagemForm({navigation, route}) {
     var dev = [];
     var fin = [];
 
-    ret = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 9},
+    /* ret = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 9},
           {origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 10}];
 
     dev = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}];
 
-    fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}];
-
-    /* const req = await fetch('http://34.207.157.190:5000/reservation', {
-          method: 'GET',
-          body: JSON.stringify({
-            access_token: DataHandler.token,
-            trip_id: DataHandler.viagemID,
-            seat_id: DataHandler.assentoID
-          }),
-          headers:{
-            'Content-Type': 'application/json'
-          }
-        });
-        const json = await req.json(); */
+    fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}]; */
 
     const req = await fetch('http://34.207.157.190:5000/reservation?access_token=' + dataHandler.getAccessToken());
     const json = await req.json();
+    if(json.success){
+      json.reservations.forEach(async item => {
+        if(item.user_id == dataHandler.getUserID()){
+          if(item.deleted_at != null){
+            const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+            const jsontrip = await reqtrip.json();
+            if(jsontrip.success){
+              const info = {origin: jsontrip.trip.origin.name,
+              destination: jsontrip.trip.destination.name,
+              tripdate: jsontrip.trip.tripdate,
+              transaction_id: item.transaction_id};
+              dev.push(info);
+            }
+          }
+          else if(item.approved){
+            const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+            const jsontrip = await reqtrip.json();
+            if(jsontrip.success){
+              const info = {origin: jsontrip.trip.origin.name,
+                destination: jsontrip.trip.destination.name,
+                tripdate: jsontrip.trip.tripdate,
+                transaction_id: item.transaction_id};
+              fin.push(info);
+            }
+          }
+          else if(!item.approved){
+            const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+            const jsontrip = await reqtrip.json();
+            if(jsontrip.success){
+              const info = {origin: jsontrip.trip.origin.name,
+                destination: jsontrip.trip.destination.name,
+                tripdate: jsontrip.trip.tripdate,
+                transaction_id: item.transaction_id,
+                id: item.id,
+                price: jsontrip.trip.price};
+              ret.push(info);
+            }
+          }
+        }
+      })
+    }
     console.log(json);
 
     setMenuVisible(false);
-    navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin})
+    navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin, dataHandler: dataHandler})
   }
 
   const Login = () => {
