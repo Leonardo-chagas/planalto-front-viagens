@@ -40,13 +40,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const BackButton = styled.TouchableHighlight`
   background-color: #088A29;
@@ -90,7 +90,7 @@ export default function Senha ({navigation, route}) {
 
   const atualizarSenha = async () =>{
     if ((password && novapassword && confirmapassword) != "") {
-
+      
       try {
         const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
           method: 'PUT',

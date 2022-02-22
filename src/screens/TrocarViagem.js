@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -16,13 +15,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
@@ -46,16 +45,7 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
-`;
-
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
+  align-items: center;
 `;
 
 const Item = styled.Text`
@@ -75,53 +65,51 @@ const ItemArea = styled.TouchableHighlight`
 `;
 
 export default function TrocarViagem({navigation, route}) {
-    const [viagens, setViagens] = useState(route.params.viagens);
-    const [origem, setOrigem] = useState(route.params.origem);
-    const [destino, setDestino] = useState(route.params.destino);
-    const [dataIda, setDataIda] = useState(route.params.dataIda);
+  const [viagens, setViagens] = useState(route.params.viagens);
+  const [origem, setOrigem] = useState(route.params.origem);
+  const [destino, setDestino] = useState(route.params.destino);
+  const [dataIda, setDataIda] = useState(route.params.dataIda);
 
-    const SelecionarViagem = async (id, busID) => {
-      var busSeats = [];
-      const req = await fetch('http://34.207.157.190:5000/seat');
-      const json = await req.json();
-      json.seats.forEach(item => {
-        if(item.bus_id == busID){
-          busSeats.push(item);
-      }
-    });
-    //busSeats = [1, 2, 3, 4, 5];
-    navigation.navigate('Trocar Assento', {seats: busSeats, origem: origem, destino: destino, dataIda: dataIda, id:id});
+  const SelecionarViagem = async (id, busID) => {
+    var busSeats = [];
+    const req = await fetch('http://34.207.157.190:5000/seat');
+    const json = await req.json();
+    json.seats.forEach(item => {
+      if(item.bus_id == busID){
+        busSeats.push(item);
     }
+  });
+  //busSeats = [1, 2, 3, 4, 5];
+  navigation.navigate('Trocar Assento', {seats: busSeats, origem: origem, destino: destino, dataIda: dataIda, id:id});
+  }
 
-    return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Viagens</HeaderText>
-            </Header>
-           
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                    {
-                        viagens.map(item=>{
-                            return(
-                            <ItemArea onPress={() => ComprarViagem(item.id, item.busID)}
-                            navigator={navigation}
-                            underlayColor='#b5b5b5'
-                            activeOpacity={0.6}>
-                            <View>
-                                <Item>Ida: {item.dataIda}</Item>
-                                <Item>Assentos disponíveis: {32}</Item>
-                                <Item>Preço: R${item.preco}</Item>
-                            </View>
-                            </ItemArea>)
-                        })
-                    }
-                    </SearchDropdown>
-                </SearchDropdownArea>
-        </Page>
-    );
+  return (
+    <Page>
+      <Header>
+        <BackButton onPress={() => navigation.goBack()}
+        underlayColor='#1ab241'>
+          <Icon name="arrowleft" color="white" size={25}/>
+        </BackButton>
+        <HeaderText>Viagens</HeaderText>
+      </Header>
+      <SearchDropdownArea>
+        <SearchDropdown>
+        {viagens.map(item=>{
+          return(
+          <ItemArea onPress={() => ComprarViagem(item.id, item.busID)}
+            navigator={navigation}
+            underlayColor='#b5b5b5'
+            activeOpacity={0.6}>
+            <View>
+              <Item>Ida: {item.dataIda}</Item>
+              <Item>Assentos disponíveis: {32}</Item>
+              <Item>Preço: R${item.preco}</Item>
+            </View>
+          </ItemArea>
+          )})
+        }
+        </SearchDropdown>
+      </SearchDropdownArea>
+    </Page>
+  );
 }

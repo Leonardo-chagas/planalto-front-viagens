@@ -110,10 +110,27 @@ export default function Confirmar({navigation, route}) {
   const Confirmar = async () => {
 
     if (route.params.dataHandler.getAccessToken() !== "") {
-      console.log(route.params.dataHandler.getAccessToken());
-      console.log(route.params.dataHandler.getViagemID());
-      console.log(route.params.dataHandler.getAssentoID());
+      
       try {
+        const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+          method: 'PUT',
+          body: JSON.stringify({
+            refresh_token: route.params.dataHandler.getRefreshToken()
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        const responseToken = await requestToken.json();
+        
+        route.params.dataHandler.setAccessToken(responseToken.access_token);
+        route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+        
+        console.log(route.params.dataHandler.getAccessToken());
+        console.log(route.params.dataHandler.getViagemID());
+        console.log(route.params.dataHandler.getAssentoID());
+
         console.log("Entrei aqui")
         const req = await fetch('http://34.207.157.190:5000/reservation', {
           method: 'POST',
@@ -136,7 +153,7 @@ export default function Confirmar({navigation, route}) {
   
         if(json.success == true){
           Alert.alert('Aviso','Reserva Confirmada');
-          // navigation.dispatch(StackActions.pop(3));
+          navigation.navigate('Minhas Viagens', {dataHandler: route.params.dataHandler})
         } else {
           Alert.alert('Aviso','Erro ao reservar - ' + json.message);
         }
@@ -148,7 +165,6 @@ export default function Confirmar({navigation, route}) {
       Alert.alert('Aviso','Para confirmar a reservar você precisa realizar o login!');
       navigation.navigate('Login', {dataHandler: route.params.dataHandler, isBuying: true});
     }
-
     console.log("Aqui confirmando!");
   }
 

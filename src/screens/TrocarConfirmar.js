@@ -47,16 +47,7 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
-`;
-
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
+  align-items: center;
 `;
 
 const Item = styled.Text`
@@ -91,55 +82,53 @@ const LoginText = styled.Text`
 `;
 
 export default function TrocarConfirmar({navigation, route}) {
-    const [origem, setOrigem] = useState(route.params.origem);
-    const [destino, setDestino] = useState(route.params.destino);
-    const [dataIda, setDataIda] = useState(route.params.dataIda);
-    const [assento, setAssento] = useState(route.params.assento);
+  const [origem, setOrigem] = useState(route.params.origem);
+  const [destino, setDestino] = useState(route.params.destino);
+  const [dataIda, setDataIda] = useState(route.params.dataIda);
+  const [assento, setAssento] = useState(route.params.assento);
 
-    const Confirmar = async () => {
-      const req = await fetch('http://34.207.157.190:5000/reservation', {
-          method: 'UPDATE',
-          body: JSON.stringify({
-            access_token: DataHandler.token,
-            trip_id: DataHandler.viagemID,
-            seat_id: DataHandler.assentoID
-          }),
-          headers:{
-            'Content-Type': 'application/json'
-          }
-        });
-        const json = await req.json();
-        if(json.success == true){
-          alert('Reserva Confirmada');
-          navigation.dispatch(StackActions.pop(3));
+  const Confirmar = async () => {
+    const req = await fetch('http://34.207.157.190:5000/reservation', {
+        method: 'UPDATE',
+        body: JSON.stringify({
+          access_token: DataHandler.token,
+          trip_id: DataHandler.viagemID,
+          seat_id: DataHandler.assentoID
+        }),
+        headers:{
+          'Content-Type': 'application/json'
         }
-    }
+      });
+      const json = await req.json();
+      if(json.success == true){
+        alert('Reserva Confirmada');
+        navigation.dispatch(StackActions.pop(3));
+      }
+  }
 
-    return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Confirmação de Reserva</HeaderText>
-            </Header>
-           
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                        <ItemArea>
-                            <View>
-                                <Item>Origem: {origem}</Item>
-                                <Item>Destino: {destino}</Item>
-                                <Item>Data: {dataIda}</Item>
-                                <Item>Assento: {assento}</Item>
-                                <Button onPress={() => Confirmar()}>
-                                    <LoginText>Confirmar</LoginText>
-                                </Button>
-                            </View>
-                        </ItemArea>
-                    </SearchDropdown>
-                </SearchDropdownArea>
-        </Page>
-    );
+  return (
+    <Page>
+      <Header>
+        <BackButton onPress={() => navigation.goBack()} underlayColor='#1ab241'>
+          <Icon name="arrowleft" color="white" size={25}/>
+        </BackButton>
+        <HeaderText>Confirmação de Reserva</HeaderText>
+      </Header> 
+      <SearchDropdownArea>
+        <SearchDropdown>
+          <ItemArea>
+            <View>
+              <Item>Origem: {origem}</Item>
+              <Item>Destino: {destino}</Item>
+              <Item>Data: {dataIda}</Item>
+              <Item>Assento: {assento}</Item>
+              <Button onPress={() => Confirmar()}>
+                <LoginText>Confirmar</LoginText>
+              </Button>
+            </View>
+          </ItemArea>
+        </SearchDropdown>
+      </SearchDropdownArea>
+    </Page>
+  );
 }

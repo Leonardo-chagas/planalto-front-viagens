@@ -45,7 +45,7 @@ const Input  = styled.TextInput.attrs((props) => ({
 
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
-  top: 25%;
+  top: 15%;
   left: 0px;
   right: 0px;
   bottom: 0px;
