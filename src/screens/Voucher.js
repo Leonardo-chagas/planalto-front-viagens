@@ -1,8 +1,6 @@
-import { StackActions } from '@react-navigation/routers';
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 import QRCode from 'react-native-qrcode-svg';
 
@@ -97,33 +95,31 @@ const LoginText = styled.Text`
 
 export default function Voucher({navigation, route}) {
 
-    return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Voucher da Viagem</HeaderText>
-            </Header>
-           
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                        <ItemArea>
-                              <Item>{'origem'} -{'>'} {'destino'}</Item>
-                              <Item>{'data'}</Item>
-                              <QRCode
-                              value='Some string value'
-                              color={'black'}
-                              backgroundColor={'white'}
-                              size={150}/>
-                              <Item>Horário: {'hora'}</Item>
-                              <Item>Assento: {'assento'}</Item>
-                              <Item>Ônibus: {'placa'}</Item>
-                              <Item>Status do Pagamento: {'pendente'}</Item>
-                        </ItemArea>
-                    </SearchDropdown>
-                </SearchDropdownArea>
-        </Page>
-    );
+  return (
+    <Page>
+      <Header>
+        <BackButton onPress={() => navigation.goBack()} underlayColor='#1ab241'>
+          <Icon name="arrowleft" color="white" size={25}/>
+        </BackButton>
+        <HeaderText>Voucher da Viagem</HeaderText>
+      </Header>
+      <SearchDropdownArea>
+        <SearchDropdown>
+          <ItemArea>
+              <Item>{'origem'} - {'>'} {'destino'}</Item>
+              <Item>{'data'}</Item>
+              <QRCode
+                value='Some string value'
+                color={'black'}
+                backgroundColor={'white'}
+                size={150}/>
+              <Item>Horário: {'hora'}</Item>
+              <Item>Assento: {'assento'}</Item>
+              <Item>Ônibus: {'placa'}</Item>
+              <Item>Status do Pagamento: {'pendente'}</Item>
+          </ItemArea>
+        </SearchDropdown>
+      </SearchDropdownArea>
+    </Page>
+  );
 }

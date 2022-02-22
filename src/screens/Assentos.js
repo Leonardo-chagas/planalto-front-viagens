@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`

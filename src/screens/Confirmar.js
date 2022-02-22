@@ -2,14 +2,13 @@ import { StackActions } from '@react-navigation/routers';
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -17,13 +16,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
@@ -47,16 +46,6 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
-`;
-
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
 `;
 
 const Item = styled.Text`

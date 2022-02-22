@@ -145,10 +145,9 @@ export default function ViagemForm({navigation, route}) {
   const ultimoAno = novoAno.toString();
   const ultimaData = '28/' + ultimoMes + '/' + ultimoAno;
 
-  const [origem, setOrigem] = useState({name: ''});
-  const [destino, setDestino] = useState({name: ''});
+  const [origem, setOrigem] = useState('');
+  const [destino, setDestino] = useState('');
   const [dataIda, setDataIda] = useState(data);
-  const [maxData] = useState(ultimaData);
   const [dataVolta, setDataVolta] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -198,43 +197,123 @@ export default function ViagemForm({navigation, route}) {
   }
 
   const Buscar = async () => {
-    if(origem && destino && dataIda){
-      const dataArray = dataIda.split('/');
-      const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
-      const reqteste = await fetch('http://34.207.157.190:5000/trip');
-      const jsonteste = await reqteste.json();
-      console.log(dataCerta);
-      console.log(jsonteste);
-      const req = await fetch('http://34.207.157.190:5000/tripByDate', {
-        method: 'POST',
-        body: JSON.stringify({
-          tripdate: dataCerta,
-          origin_id: origem.id,
-          destination_id: destino.id
-        }),
-        headers:{
-          'Content-type': 'application/json'
+    if (dataVolta !== "") {
+      if(origem && destino && dataIda !== "") {
+        try {
+          const dataArray = dataIda.split('/');
+          const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
+
+          const reqTripIda = await fetch('http://34.207.157.190:5000/trip', {method: 'GET'});
+          
+          const responseTripIda = await reqTripIda.json();
+          console.log(responseTripIda);
+  
+          if(responseTripIda.success) {
+            let viagensIda = [];
+            var tripsDateIda = responseTripIda.trips.filter(function(item) {
+              if (item.tripdate.toString().toLowerCase().startsWith(dataCerta.toString().toLowerCase())) {
+                return item;
+              }
+            });
+  
+            tripsDateIda.forEach(item => {
+              viagensIda.push({dataIda: item.tripdate, preco: item.price, id: item.id, busID: item.bus.id});
+            })
+  
+            dataHandler.setOrigemIda(origem);
+            dataHandler.setDestinoIda(destino);
+            dataHandler.setDataIda(dataIda);
+  
+            console.log(viagensIda);
+
+            const reqTripVolta = await fetch('http://34.207.157.190:5000/trip', {method: 'GET'});
+            
+            const responseTripVolta = await reqTripVolta.json();
+            console.log(responseTripVolta);
+    
+            if(responseTripVolta.success) {
+              let viagensVolta = [];
+              var tripsDateVolta = responseTripVolta.trips.filter(function(item) {
+                if (item.tripdate.toString().toLowerCase().startsWith(dataCerta.toString().toLowerCase())) {
+                  return item;
+                }
+              });
+    
+              console.log(tripsDateVolta);
+    
+              tripsDateVolta.forEach(item => {
+                viagensVolta.push({dataVolta: item.tripdate, preco: item.price, id: item.id, busID: item.bus.id});
+              })
+    
+              dataHandler.setOrigemVolta(destino);
+              dataHandler.setDestinoVolta(origem);
+              dataHandler.setDataIda(dataVolta);
+    
+              console.log(viagensVolta);
+    
+              navigation.navigate('Viagens', {viagensIda: viagensIda, viagensVolta: viagensVolta, dataHandler: dataHandler})
+            } else {
+              console.log(responseTrip.message);
+              Alert.alert('Aviso','Não foi encontrada nenhuma viagem de volta para esta data');
+            }
+
+          } else {
+            console.log(responseTrip.message);
+            Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida para esta data');
+          }
+  
+        } catch (error) {
+          Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+          console.log(error);
         }
-      });
-      var viagens = [];
-      const json = await req.json();
-      if(json.success){
-        json.trips.forEach(item => {
-          viagens.push({dataIda:item.tripdate, preco:item.price, id:item.id, busID: item.bus_id});
-        })
-        //const viagens = [{ida:'12/03/2021',assentos:32, preco:102.09, id: 123}];
-        dataHandler.setOrigem(origem);
-        dataHandler.setDestino(destino);
-        dataHandler.setDataIda(dataIda);
-        navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
+      } else {
+        alert('Preencha os campos obrigatórios');
       }
-      else{
-        console.log(json.message);
-        alert('Não foi encontrada nenhuma viagem para esta data');
+    } else {
+      if(origem && destino && dataIda !== "") {
+        try {
+          const dataArray = dataIda.split('/');
+          const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
+          const reqTripIda = await fetch('http://34.207.157.190:5000/trip', {method: 'GET'});
+          
+          const responseTripIda = await reqTripIda.json();
+          console.log(dataCerta);
+          console.log(responseTripIda);
+  
+          if(responseTripIda.success) {
+            let viagensIda = [];
+            var tripsDateIda = responseTripIda.trips.filter(function(item) {
+              if (item.tripdate.toString().toLowerCase().startsWith(dataCerta.toString().toLowerCase())) {
+                return item;
+              }
+            });
+  
+            console.log(tripsDateIda);
+  
+            tripsDateIda.forEach(item => {
+              viagensIda.push({dataIda: item.tripdate, preco: item.price, id: item.id, busID: item.bus.id});
+            })
+  
+            dataHandler.setOrigemIda(origem);
+            dataHandler.setDestinoIda(destino);
+            dataHandler.setDataIda(dataIda);
+  
+            console.log(viagensIda);
+  
+            navigation.navigate('Viagens', {viagensIda: viagensIda, viagensVolta: [], dataHandler: dataHandler})
+          }
+          else {
+            console.log(responseTrip.message);
+            Alert.alert('Aviso','Não foi encontrada nenhuma viagem para esta data');
+          }
+  
+        } catch (error) {
+          Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+          console.log(error);
+        }
+      } else {
+        alert('Preencha os campos obrigatórios');
       }
-    }
-    else{
-      alert('Preencha os campos obrigatórios');
     }
   }
   
@@ -242,13 +321,6 @@ export default function ViagemForm({navigation, route}) {
     var ret = [];
     var dev = [];
     var fin = [];
-
-    /* ret = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 9},
-          {origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 10}];
-
-    dev = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}];
-
-    fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}]; */
 
     const req = await fetch('http://34.207.157.190:5000/reservation?access_token=' + dataHandler.getAccessToken());
     const json = await req.json();

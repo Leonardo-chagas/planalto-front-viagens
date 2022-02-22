@@ -1,30 +1,33 @@
 class DataHandler {
     constructor() {
-        this.origem = '';
-        this.destino = '';
+        this.origemIda = '';
+        this.destinoIda = '';
         this.dataIda = '';
+        this.origemVolta = '';
+        this.destinoVolta = '';
+        this.dataVolta = '';
         this.assento = '';
-        this.viagemID = 0;
         this.assentoID = 0;
+        this.viagemID = 0;
         this.accessToken = '';
         this.refreshToken = '';
         this.userID = '';
     };
 
-    getOrigem() {
-        return this.origem;
+    getOrigemIda() {
+        return this.origemIda;
     };
 
-    setOrigem(origem){
-        this.origem = origem;
+    setOrigemIda(origemIda){
+        this.origemIda = origemIda;
     };
 
-    getDestino() {
-        return this.destino;
+    getDestinoIda() {
+        return this.destinoIda;
     };
 
-    setDestino(destino){
-        this.destino = destino;
+    setDestinoIda(destinoIda){
+        this.destinoIda = destinoIda;
     };
 
     getDataIda() {
@@ -33,6 +36,30 @@ class DataHandler {
 
     setDataIda(dataIda){
         this.dataIda = dataIda;
+    };
+
+    getOrigemVolta() {
+        return this.origemVolta;
+    };
+
+    setOrigemVolta(origemVolta){
+        this.origemVolta = origemVolta;
+    };
+
+    getDestinoVolta() {
+        return this.destinoVolta;
+    };
+
+    setDestinoVolta(destinoVolta){
+        this.destinoVolta = destinoVolta;
+    };
+
+    getDataVolta() {
+        return this.dataVolta;
+    };
+
+    setDataIda(dataVolta){
+        this.dataVolta = dataVolta;
     };
 
     getAccessToken() {
@@ -57,6 +84,22 @@ class DataHandler {
 
     setUserID(userID){
         this.userID = userID;
+    };
+
+    getAssentoID() {
+        return this.assentoID;
+    };
+
+    setAssentoID(assentoID){
+        this.assentoID = assentoID;
+    };
+
+    getAssento() {
+        return this.assento;
+    };
+
+    setAssento(assento){
+        this.assento = assento;
     };
 }
 
