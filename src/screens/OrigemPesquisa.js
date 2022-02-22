@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import Data from './cities.json'
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -15,13 +14,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const InputView = styled.View`
   background-color: #088A29;

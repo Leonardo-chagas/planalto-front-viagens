@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import Data from './cities.json'
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
@@ -29,13 +28,14 @@ const InputView = styled.View`
   padding-left: 50px;
 `
 
-const Input = styled.TextInput`
+const Input  = styled.TextInput.attrs((props) => ({
+  placeholderTextColor: 'white',
+}))`
   background-color: #088A29;
   color: white;
   width: 80%;
   height: 50px;
   font-size: 20px;
-  font-weight: bold;
   padding-horizontal: 10px;
   border-bottom-width: 1px;
   border-bottom-color: white;
@@ -65,22 +65,14 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
-`;
-
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
+  align-items: center;
 `;
 
 const Item = styled.Text`
   font-size: 22px;
   border-bottom-width: 1px;
   border-bottom-color: #A4A4A4;
+  color: #A4A4A4;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -99,7 +91,7 @@ export default function DestinoPesquisa({navigation, route}) {
     if(text){
       const temp = text.toString().toLowerCase();
       const tempList = dataSource.filter(item=>{
-        if(item.toString().toLowerCase().startsWith(temp))
+        if(item.name.toString().toLowerCase().startsWith(temp))
         return item
       })
       setFiltered(tempList);
