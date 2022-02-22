@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {Picker} from '@react-native-picker/picker';
-import { StyleSheet, Switch} from 'react-native';
+import { StyleSheet, Switch, Alert} from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import DatePicker from 'react-native-datepicker';
@@ -13,6 +13,18 @@ const Page = styled.SafeAreaView`
 
 const Container = styled.ScrollView`
   width: 90%;
+`;
+
+const SwitchView = styled.View`
+  width: 100%;
+  border-bottom-width: 1px;
+  border-bottom-color: #A4A4A4;
+  margin-bottom: 20px;
+  padding-left: 10px;
+  overflow: hidden;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 15px;
 `;
 
 const InputView = styled.View`
@@ -35,11 +47,14 @@ const SelectorView = styled.View`
   overflow: hidden;
 `;
 
-const Input = styled.TextInput`
+const Input = styled.TextInput.attrs((props) => ({
+  placeholderTextColor: '#A4A4A4',
+}))`
   height: 40px;
   font-size: 18px;
   overflow: hidden;
   padding: 0;
+  color: #424242;
 `;
 
 const Button = styled.TouchableHighlight`
@@ -62,13 +77,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const BackButton = styled.TouchableHighlight`
   background-color: #088A29;
@@ -102,25 +117,40 @@ const SenhaText = styled.Text`
   text-align: right;
 `;
 
+const SMSText = styled.Text`
+  font-size: 18px;
+  overflow: hidden;
+  padding: 0;
+  color: #424242;
+`;
+
 const styles = StyleSheet.create({
   item: {
     fontSize: 18,
   },
   datePickerStyle: {
-    width: 200,
-    marginTop: 20,
+    width: 250,
+  }, 
+  pickerStyle: {
+    color: '#424242',
+  },
+  inputStyle: {
+    height: 40,
+    fontSize: 18,
+    overflow: 'hidden',
+    padding: 0,
+    color: '#424242',
   }
 });
 
 export default function Cadastro ({navigation, route}) {
-  console.log(route.params.dataHandler.getAccessToken());
-  console.log(route.params.userData);
-
-  // const datahoje = new Date();
-  // const datainicial = new Date(1900,0,1);
+  const dataarray = route.params.userData.user.birthdate.split('-');
+  const datacerta = dataarray[2] + '/' + dataarray[1] + '/' + dataarray[0];
+  const datahoje = new Date();
+  const datainicial = new Date(1900,0,1);
   const [nome, setNome] = useState(route.params.userData.user.name);
   const [documento, setDocumento] = useState(route.params.userData.user.document);
-  // const [datanascimento, setDataNascimento] = useState('');
+  const [datanascimento, setDataNascimento] = useState(datacerta);
   const [email, setEmail] = useState(route.params.userData.user.email);
   const [tipotelefone, setTipoTelefone] = useState(route.params.userData.user.phone_type);
   const [telefone, setTelefone] = useState(route.params.userData.user.phone);
@@ -131,27 +161,73 @@ export default function Cadastro ({navigation, route}) {
   const [bairro, setBairro] = useState(route.params.userData.user.neighbourhood);
   const [cidade, setCidade] = useState(route.params.userData.user.city);
   const [estado, setEstado] = useState(route.params.userData.user.state);
-
-
-  // const [nome, setNome] = useState('');
-  // const [documento, setDocumento] = useState('');
-  // // const [datanascimento, setDataNascimento] = useState('');
-  // const [email, setEmail] = useState('');
-  // const [tipotelefone, setTipoTelefone] = useState('');
-  // const [telefone, setTelefone] = useState('');
-  // const [cep, setCep] = useState('');
-  // const [rua, setRua] = useState('');
-  // const [numero, setNumero] = useState('');
-  // const [complemento, setComplemento] = useState('');
-  // const [bairro, setBairro] = useState('');
-  // const [cidade, setCidade] = useState('');
-  // const [estado, setEstado] = useState('');
-
-  // const [isEnabled, setIsEnabled] = useState(false);
-  // const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const [isEnabled, setIsEnabled] = useState(route.params.userData.user.enable_sms);
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   const atualizarCadastro = async () =>{
-    console.log("Vou atualizar!")
+    if ((nome && documento && datanascimento && email && telefone && cep && rua && numero && bairro && cidade && estado) != "") {
+
+      try {
+        const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+          method: 'PUT',
+          body: JSON.stringify({
+            refresh_token: route.params.dataHandler.getRefreshToken()
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const responseToken = await requestToken.json();
+        
+        route.params.dataHandler.setAccessToken(responseToken.access_token);
+        route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+
+        const dataarray = datanascimento.split('/');
+        const datacerta = dataarray[2] + '-' + dataarray[1] + '-' + dataarray[0];
+        const request = await fetch('http://34.207.157.190:5000/put/'+route.params.dataHandler.getUserID(), {
+          method: 'PUT',
+          body: JSON.stringify({
+            access_token: route.params.dataHandler.getAccessToken(),
+            name: nome,
+            email: email,
+            document: documento,
+            phone_type: tipotelefone,
+            phone: telefone,
+            addr_postal_code: cep,
+            addr_street: rua,
+            addr_number: numero,
+            addr_additional_info: complemento,
+            birthdate: datacerta,
+            neighbourhood: bairro,
+            city: cidade,
+            state: estado,
+            enable_sms: isEnabled.toString()
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+
+        console.log("Cheguei aqui na atualização!");
+
+        const response = await request.json();
+
+        if(response.success == false){
+          Alert.alert('Aviso','Erro na atualização - ' + response.message);
+        } else {
+          Alert.alert('Aviso','Cadastro atualizado!');
+          navigation.navigate('Pesquisa de Viagens');
+        }
+
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
+      }
+
+    } else {
+      Alert.alert('Aviso','Preencha todas as informações!')
+    }
   }
 
   return (
@@ -166,16 +242,22 @@ export default function Cadastro ({navigation, route}) {
         <TitleText>Dados Pessoais</TitleText>
       </Title>
       <Container>
-        <Button onPress={() => navigation.navigate('Senha', {email: email})}>
+        <Button onPress={() => navigation.navigate('Senha', {dataHandler: route.params.dataHandler, email: route.params.userData.user.name, name: route.params.userData.user.name})}>
           <SenhaText>Alterar Senha</SenhaText>
         </Button>
         <InputView>
           <Input value={nome} onChangeText={t=>setNome(t)} placeholder={'Nome completo'}/>
         </InputView>
         <InputView>
-          <Input value={documento} onChangeText={t=>setDocumento(t)} placeholder={'Documento'}/>
+          <TextInputMask 
+            style={styles.inputStyle}
+            type={'cpf'}
+            value={documento}
+            onChangeText={t=>setDocumento(t)}
+            placeholder={'CPF'}
+            placeholderTextColor = '#A4A4A4'/>
         </InputView>
-        {/* <InputView>
+        <InputView>
           <DatePicker
             style={styles.datePickerStyle}
             date={datanascimento}
@@ -194,39 +276,62 @@ export default function Cadastro ({navigation, route}) {
                 marginLeft: 0,
               },
               dateInput: {
-                marginLeft: 36,
                 borderWidth: 0,
               },
+              dateText: {
+                fontSize: 18,
+              },
+              placeholderText: {
+                fontSize: 18,
+                color: '#A4A4A4',
+              },
             }}
-            onDateChange={(datanascimento) => {setDataNascimento(datanascimento)}}/>
-        </InputView> */}
+            onDateChange={t=>{setDataNascimento(t)}}/>
+        </InputView>
         <InputView>
           <Input value={email} onChangeText={t=>setEmail(t)} placeholder={'E-mail'}/>
         </InputView>
-        {/* <InputView>
-          <Input value={confirmaemail} onChangeText={t=>setConfirmaEmail(t)} placeholder={'Confirmação de e-mail'}/>
-        </InputView> */}
         <SelectorView>
-        <Picker selectedValue={tipotelefone} mode={'dropdown'} onValueChange={t=>setTipoTelefone(t)}>
+        <Picker style={styles.pickerStyle} selectedValue={tipotelefone} mode={'dropdown'} onValueChange={t=>setTipoTelefone(t)}>
           <Picker.Item style={styles.item} label="Celular" value="1"/>
           <Picker.Item style={styles.item} label="Residencial" value="2"/>
           <Picker.Item style={styles.item} label="Comercial" value="3"/>
         </Picker>
         </SelectorView>
         <InputView>
-          <Input value={telefone} onChangeText={t=>setTelefone(t)} placeholder={'Telefone'}/>
+          <TextInputMask 
+            style={styles.inputStyle}
+            type={'cel-phone'}
+            options={{
+              maskType: 'BRL',
+              withDDD: true,
+              dddMask: '(99) '
+            }}
+            value={telefone}
+            onChangeText={t=>setTelefone(t)}
+            placeholder={'Telefone'}
+            placeholderTextColor = '#A4A4A4'/>
         </InputView>
-        {/* <InputView>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleSwitch}
-          value={isEnabled}
-        />
-        </InputView> */}
+        <SwitchView>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isEnabled ? "#2E64FE" : "#f4f3f4"}
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+          />
+          <SMSText>Receber SMS</SMSText>
+        </SwitchView>
         <InputView>
-          <Input value={cep} onChangeText={t=>setCep(t)} placeholder={'Cep'}/>
+          <TextInputMask 
+            style={styles.inputStyle}
+            type={'custom'}
+            options={{
+              mask: '99999-999'
+            }}
+            value={cep}
+            onChangeText={t=>setCep(t)}
+            placeholder={'CEP'}
+            placeholderTextColor = '#A4A4A4'/>
         </InputView>
         <InputView>
           <Input value={rua} onChangeText={t=>setRua(t)} placeholder={'Rua'}/>
@@ -244,7 +349,7 @@ export default function Cadastro ({navigation, route}) {
           <Input value={cidade} onChangeText={t=>setCidade(t)} placeholder={'Cidade'}/>
         </InputView>
         <SelectorView>
-        <Picker selectedValue={estado} mode={'dropdown'} onValueChange={t=>setEstado(t)}>
+        <Picker style={styles.pickerStyle} selectedValue={estado} mode={'dropdown'} onValueChange={t=>setEstado(t)}>
           <Picker.Item style={styles.item} value="AC" label="Acre"/>
           <Picker.Item style={styles.item} value="AL" label="Alagoas"/>
           <Picker.Item style={styles.item} value="AP" label="Amapá"/>
@@ -275,7 +380,7 @@ export default function Cadastro ({navigation, route}) {
         </Picker>
         </SelectorView>
         <Button onPress={atualizarCadastro}>
-          <LoginText>Cadastrar</LoginText>
+          <LoginText>Atualizar</LoginText>
         </Button>
       </Container>
     </Page>

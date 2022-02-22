@@ -7,7 +7,7 @@ const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -15,13 +15,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const InputView = styled.View`
   background-color: #088A29;
@@ -91,64 +91,60 @@ const ItemArea = styled.TouchableHighlight`
 `;
 
 export default function DestinoPesquisa({navigation, route}) {
-    const [dataSource] = useState(route.params.cities);
-    const [filtered, setFiltered] = useState(dataSource);
-    const [destino, setDestino] = useState('');
-    const OnSearch = (text) => {
-        setDestino(text);
-        if(text){
-            const temp = text.toString().toLowerCase();
-
-            const tempList = dataSource.filter(item=>{
-                if(item.toString().toLowerCase().startsWith(temp))
-                return item
-            })
-            setFiltered(tempList);
-        }
-        else{
-            setFiltered(dataSource);
-        }
+  const [dataSource] = useState(route.params.cities);
+  const [filtered, setFiltered] = useState(dataSource);
+  const [destino, setDestino] = useState('');
+  const OnSearch = (text) => {
+    setDestino(text);
+    if(text){
+      const temp = text.toString().toLowerCase();
+      const tempList = dataSource.filter(item=>{
+        if(item.toString().toLowerCase().startsWith(temp))
+        return item
+      })
+      setFiltered(tempList);
     }
-
-    const Select = (item) => {
-      setDestino(item);
-      route.params.onReturnDestino(item);
-      navigation.goBack();
+    else{
+      setFiltered(dataSource);
     }
+  }
 
-    return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Selecione seu Destino</HeaderText>
-            </Header>
-            <InputView>
-              <Input
-              placeholder={'Ex: Pelotas'}
-              onChangeText={OnSearch}
-              value={destino}
-              />
-            </InputView>
-           
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                    {
-                        filtered.map(item=>{
-                            return(
-                            <ItemArea onPress={() => Select(item)}
-                            navigator={navigation}
-                            underlayColor='#b5b5b5'
-                            activeOpacity={0.6}>
-                            <Item>{item.name}</Item>
-                            </ItemArea>)
-                        })
-                    }
-                    </SearchDropdown>
-                </SearchDropdownArea>
-            
-        </Page>
-    );
+  const Select = (item) => {
+    setDestino(item);
+    route.params.onReturnDestino(item);
+    navigation.goBack();
+  }
+
+  return (
+    <Page>
+      <Header>
+        <BackButton onPress={() => navigation.goBack()}
+        underlayColor='#1ab241'>
+          <Icon name="arrowleft" color="white" size={25}/>
+        </BackButton>
+        <HeaderText>Selecione seu Destino</HeaderText>
+      </Header>
+      <InputView>
+        <Input
+        placeholder={'Ex: Pelotas'}
+        onChangeText={OnSearch}
+        value={destino}
+        />
+      </InputView>
+      <SearchDropdownArea>
+        <SearchDropdown>
+        {filtered.map(item=>{
+          return(
+            <ItemArea onPress={() => Select(item)}
+              navigator={navigation}
+              underlayColor='#b5b5b5'
+              activeOpacity={0.6}>
+              <Item>{item.name}</Item>
+            </ItemArea>)
+          })
+        }
+        </SearchDropdown>
+      </SearchDropdownArea>
+    </Page>
+  );
 }

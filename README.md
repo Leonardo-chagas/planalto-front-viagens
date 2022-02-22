@@ -75,6 +75,9 @@ react-native link react-native-svg
 
 npm install react-native-qrcode-svg
 
+NOVO
+npm install react-native-masked-text --save
+
 ir para o arquivo na pasta:
 
 planalto-front-final-main\android\app\src\main\res\values\styles.xml

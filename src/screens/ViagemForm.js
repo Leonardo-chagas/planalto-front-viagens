@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, StyleSheet, TouchableWithoutFeedback, View, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import styled from 'styled-components/native';
@@ -302,19 +302,40 @@ export default function ViagemForm({navigation, route}) {
   }
 
   const Perfil = async() => {
+    try {
+      const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+        method: 'PUT',
+        body: JSON.stringify({
+          refresh_token: route.params.dataHandler.getRefreshToken()
+        }),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
 
-    const url = 'http://34.207.157.190:5000/user/'+dataHandler.getUserID()+'?access_token='+dataHandler.getAccessToken();
-    console.log(url);
-    const req = await fetch(url, {
-      method: 'GET',
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    });
-    console.log("Cheguei aqui!")
-    const userData = await req.json();
-    setMenuVisible(false)
-    navigation.navigate('Perfil', {userData: userData, dataHandler: dataHandler})
+      const responseToken = await requestToken.json();
+      
+      route.params.dataHandler.setAccessToken(responseToken.access_token);
+      route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+
+      console.log(url);
+      const requestData = await fetch('http://34.207.157.190:5000/user/'+ dataHandler.getUserID() + '?access_token='+ dataHandler.getAccessToken(), {
+        method: 'GET',
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log("Cheguei aqui!")
+      const userData = await requestData.json();
+
+      setMenuVisible(false);
+      navigation.navigate('Perfil', {userData: userData, dataHandler: dataHandler});
+
+    } catch (error) {
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
+    }
   }
 
   const Sair = () => {
@@ -325,10 +346,6 @@ export default function ViagemForm({navigation, route}) {
     navigation.navigate('Pesquisa de Viagens')
   }
   
-  console.log("Esse é o token: "+ dataHandler.getAccessToken())
-  console.log("Esse é o refresh: "+ dataHandler.getRefreshToken())
-  console.log("Esse é o ID: "+ dataHandler.getUserID())
-
   return (
     <Page>
       <Menu visible={menuVisible}
