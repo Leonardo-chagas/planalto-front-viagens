@@ -112,8 +112,12 @@ export default function Login({navigation, route}) {
           route.params.dataHandler.setAccessToken(response.access_token);
           route.params.dataHandler.setRefreshToken(response.refresh_token);
           route.params.dataHandler.setUserID(response.user.id);
-          navigation.navigate('Pesquisa de Viagens');
-         } else {
+          if(route.params.isBuying == true){
+            navigation.navigate('Confirmar', {dataHandler: route.params.dataHandler});
+          } else {
+            navigation.navigate('Pesquisa de Viagens');
+          }
+        } else {
           Alert.alert('Aviso','Login Negado - ' + response.message);
         }
 

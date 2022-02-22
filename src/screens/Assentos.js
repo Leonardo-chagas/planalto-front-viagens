@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -7,21 +7,20 @@ const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
-
+`;
 const Header = styled.View`
   width: 100%;
   background-color: #088A29;
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
@@ -45,41 +44,33 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
-`;
-
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
+  align-items: center;
 `;
 
 const Seat = styled.TouchableHighlight`
-border-width: 1px;
-border-color: #A4A4A4;
-border-top-left-radius: 10px;
-border-top-right-radius: 10px;
-flex:1;
-align-items: center;
-justify-content: center;
-height: 35px;
-margin-bottom: 10px;
-background-color: #088A29;
+  border-width: 1px;
+  border-color: #A4A4A4;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  flex:1;
+  align-items: center;
+  justify-content: center;
+  height: 35px;
+  margin-bottom: 10px;
+  background-color: #088A29;
 `;
 
 const Row = styled.View`
-display: flex;
-flex-direction: row;
+  display: flex;
+  flex-direction: row;
 `;
 
 export default function Assentos({navigation, route}) {
-  const [busSeats, setBusSeats] = useState(route.params.seats);
-  const [origem, setOrigem] = useState(route.params.origem);
-  const [destino, setDestino] = useState(route.params.destino);
-  const [dataIda, setDataIda] = useState(route.params.dataIda);
+  const [busSeats] = useState(route.params.seats);
+  const [origem] = useState(route.params.origem.name);
+  const [destino] = useState(route.params.destino.name);
+  const [data] = useState(route.params.data);
+  const [idTrip] = useState(route.params.idTrip);
 
   var seats = [];
   var index = 0;
@@ -112,24 +103,30 @@ export default function Assentos({navigation, route}) {
         passou = true;
       } else {
         row.push(
-        <Seat onPress={() => FazerReserva(seatName, seatID)}>
-          <Text>{seatName}</Text>
-        </Seat>
+          <Seat key={seatID} onPress={() => FazerReserva(seatName, seatID)}>
+            <Text>{seatName}</Text>
+          </Seat>
         );
       }
     }
+
     seats.push(
-    <Row>
-      {row}
-    </Row>
+      <Row>
+        {row}
+      </Row>
     );
     index = index+4;
   }
 
   const FazerReserva = async (assento, assentoID) => {
-    DataHandler.assento = assento;
-    DataHandler.assentoID = assentoID;
-    navigation.navigate('Confirmar', {origem: origem, destino: destino, dataIda: dataIda, assento: assento});
+    console.log(assento);
+    console.log(assentoID);
+    console.log(origem);
+    console.log(destino);
+    console.log(data);
+    console.log("Aqui!");
+    console.log(route.params.dataHandler.getAccessToken())
+    navigation.navigate('Confirmar', {idTrip: idTrip, origem: origem, destino: destino, data: data, assento: assento, assentoID: assentoID, dataHandler: route.params.dataHandler});
   }
     
   return (

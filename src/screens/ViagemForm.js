@@ -217,13 +217,9 @@ export default function ViagemForm({navigation, route}) {
             });
   
             tripsDateIda.forEach(item => {
-              viagensIda.push({dataIda: item.tripdate, preco: item.price, id: item.id, busID: item.bus.id});
+              viagensIda.push({dataIda: item.tripdate, origemIda: origem, destinoIda: destino, preco: item.price, idTrip: item.id, busID: item.bus.id});
             })
-  
-            dataHandler.setOrigemIda(origem);
-            dataHandler.setDestinoIda(destino);
-            dataHandler.setDataIda(dataIda);
-  
+
             console.log(viagensIda);
 
             const reqTripVolta = await fetch('http://34.207.157.190:5000/trip', {method: 'GET'});
@@ -242,13 +238,9 @@ export default function ViagemForm({navigation, route}) {
               console.log(tripsDateVolta);
     
               tripsDateVolta.forEach(item => {
-                viagensVolta.push({dataVolta: item.tripdate, preco: item.price, id: item.id, busID: item.bus.id});
+                viagensVolta.push({dataVolta: item.tripdate, origemVolta: destino, destinoVolta: origem, preco: item.price, idTrip: item.id, busID: item.bus.id});
               })
-    
-              dataHandler.setOrigemVolta(destino);
-              dataHandler.setDestinoVolta(origem);
-              dataHandler.setDataIda(dataVolta);
-    
+
               console.log(viagensVolta);
     
               navigation.navigate('Viagens', {viagensIda: viagensIda, viagensVolta: viagensVolta, dataHandler: dataHandler})
@@ -291,12 +283,8 @@ export default function ViagemForm({navigation, route}) {
             console.log(tripsDateIda);
   
             tripsDateIda.forEach(item => {
-              viagensIda.push({dataIda: item.tripdate, preco: item.price, id: item.id, busID: item.bus.id});
+              viagensIda.push({dataIda: item.tripdate, origemIda: origem, destinoIda: destino, preco: item.price, idTrip: item.id, busID: item.bus.id});
             })
-  
-            dataHandler.setOrigemIda(origem);
-            dataHandler.setDestinoIda(destino);
-            dataHandler.setDataIda(dataIda);
   
             console.log(viagensIda);
   
@@ -373,7 +361,7 @@ export default function ViagemForm({navigation, route}) {
 
   const Login = () => {
     setMenuVisible(false);
-    navigation.navigate('Login', {dataHandler: dataHandler})
+    navigation.navigate('Login', {dataHandler: dataHandler, isBuying: false})
   }
 
   const Cadastrar = () => {
@@ -463,31 +451,31 @@ export default function ViagemForm({navigation, route}) {
                 </View>
               </MenuItem>
             </Box>
-            }
-            {dataHandler.getAccessToken() == '' &&
-              <Box>
-              <MenuItem onPress={()=>setMenuVisible(false)}>
-                <View>
-                  <Icon name="home" color="#aaaaaa" size={25}/>
-                  <MenuItemText>Home</MenuItemText>
-                </View>
-              </MenuItem>
+          }
+          {dataHandler.getAccessToken() == '' &&
+            <Box>
+            <MenuItem onPress={()=>setMenuVisible(false)}>
+              <View>
+                <Icon name="home" color="#aaaaaa" size={25}/>
+                <MenuItemText>Home</MenuItemText>
+              </View>
+            </MenuItem>
 
-              <MenuItem onPress={()=>Login()}>
-                <View>
-                  <Icon name="lock-open" color="#aaaaaa" size={25}/>
-                  <MenuItemText>Entrar</MenuItemText>
-                </View>
-              </MenuItem>
+            <MenuItem onPress={()=>Login()}>
+              <View>
+                <Icon name="lock-open" color="#aaaaaa" size={25}/>
+                <MenuItemText>Entrar</MenuItemText>
+              </View>
+            </MenuItem>
 
-              <MenuItem onPress={()=>Cadastrar()}>
-                <View>
-                  <Icon name="lock-open"  color="#aaaaaa" size={25}/>
-                  <MenuItemText>Cadastrar</MenuItemText>
-                </View>
-              </MenuItem>
-            </Box>
-            }
+            <MenuItem onPress={()=>Cadastrar()}>
+              <View>
+                <Icon name="lock-open"  color="#aaaaaa" size={25}/>
+                <MenuItemText>Cadastrar</MenuItemText>
+              </View>
+            </MenuItem>
+          </Box>
+          }
           {/* </TouchableWithoutFeedback> */}
         </MenuBody>
       </Menu>

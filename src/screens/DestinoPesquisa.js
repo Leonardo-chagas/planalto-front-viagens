@@ -127,7 +127,7 @@ export default function DestinoPesquisa({navigation, route}) {
         <SearchDropdown>
         {filtered.map(item=>{
           return(
-            <ItemArea onPress={() => Select(item)}
+            <ItemArea key={item.id} onPress={() => Select(item)}
               navigator={navigation}
               underlayColor='#b5b5b5'
               activeOpacity={0.6}>

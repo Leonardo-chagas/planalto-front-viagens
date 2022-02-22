@@ -1,6 +1,6 @@
 import { StackActions } from '@react-navigation/routers';
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -46,13 +46,16 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
+  align-items: center;
 `;
 
 const Item = styled.Text`
-  font-size: 22px;
+  padding-left: 15px;
+  font-size: 20px;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
+  color: #A4A4A4;
 `;
 
 const ItemArea = styled.TouchableHighlight`
@@ -67,7 +70,8 @@ const ItemArea = styled.TouchableHighlight`
 const Button = styled.TouchableHighlight`
   margin-bottom: 10px;
   margin-left: 25px;
-  width: 85%;  
+  width: 85%;
+  margin-top: 15px;
 `;
 
 const LoginText = styled.Text`
@@ -80,36 +84,78 @@ const LoginText = styled.Text`
 `;
 
 export default function Confirmar({navigation, route}) {
-  const [origem, setOrigem] = useState(route.params.origem);
-  const [destino, setDestino] = useState(route.params.destino);
-  const [dataIda, setDataIda] = useState(route.params.dataIda);
-  const [assento, setAssento] = useState(route.params.assento);
+
+  route.params.dataHandler.setOrigem(route.params.origem);
+  route.params.dataHandler.setDestino(route.params.destino);
+  route.params.dataHandler.setData(route.params.data);
+  route.params.dataHandler.setAssento(route.params.assento);
+  route.params.dataHandler.setAssentoID(route.params.assentoID);
+  route.params.dataHandler.setViagemID(route.params.idTrip);
+
+  const [origem] = useState(route.params.origem);
+  const [destino] = useState(route.params.destino);
+  const [data] = useState(route.params.data);
+  const [assento] = useState(route.params.assento);
+
+  const formatarData = (data) => {
+    let d = new Date (data);
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`
+  }
+
+  const formatarHora = (data) => {
+    let d = new Date (data);
+    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+  }
 
   const Confirmar = async () => {
-    const req = await fetch('http://34.207.157.190:5000/reservation', {
-      method: 'POST',
-      body: JSON.stringify({
-        access_token: DataHandler.token,
-        trip_id: DataHandler.viagemID,
-        seat_id: DataHandler.assentoID
-      }),
-      headers:{
-        'Content-Type': 'application/json'
+
+    if (route.params.dataHandler.getAccessToken() !== "") {
+      console.log(route.params.dataHandler.getAccessToken());
+      console.log(route.params.dataHandler.getViagemID());
+      console.log(route.params.dataHandler.getAssentoID());
+      try {
+        console.log("Entrei aqui")
+        const req = await fetch('http://34.207.157.190:5000/reservation', {
+          method: 'POST',
+          body: JSON.stringify({
+            access_token: route.params.dataHandler.getAccessToken(),
+            trip_id: route.params.dataHandler.getViagemID(),
+            seat_id: route.params.dataHandler.getAssentoID()
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log("Entrei aqui")
+
+        console.log(req);
+        
+        const json = await req.json();
+  
+        console.log(json);
+  
+        if(json.success == true){
+          Alert.alert('Aviso','Reserva Confirmada');
+          // navigation.dispatch(StackActions.pop(3));
+        } else {
+          Alert.alert('Aviso','Erro ao reservar - ' + json.message);
+        }
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
       }
-    });
-    
-    const json = await req.json();
-    if(json.success == true){
-      alert('Reserva Confirmada');
-      navigation.dispatch(StackActions.pop(3));
+    } else {
+      Alert.alert('Aviso','Para confirmar a reservar você precisa realizar o login!');
+      navigation.navigate('Login', {dataHandler: route.params.dataHandler, isBuying: true});
     }
+
+    console.log("Aqui confirmando!");
   }
 
   return (
     <Page>
       <Header>
-        <BackButton onPress={() => navigation.goBack()}
-        underlayColor='#1ab241'>
+        <BackButton onPress={() => navigation.goBack()} underlayColor='#1ab241'>
           <Icon name="arrowleft" color="white" size={25}/>
         </BackButton>
         <HeaderText>Confirmação de Reserva</HeaderText>
@@ -118,15 +164,16 @@ export default function Confirmar({navigation, route}) {
           <SearchDropdown>
             <ItemArea>
               <View>
-                <Item>Origem: {DataHandler.origem}</Item>
-                <Item>Destino: {DataHandler.destino}</Item>
-                <Item>Data: {DataHandler.dataIda}</Item>
-                <Item>Assento: {DataHandler.assento}</Item>
-                <Button onPress={() => Confirmar()}>
-                  <LoginText>Confirmar</LoginText>
-                </Button>
+                <Item>Origem: {origem}</Item>
+                <Item>Destino: {destino}</Item>
+                <Item>Data: {formatarData(data)}</Item>
+                <Item>Hora: {formatarHora(data)}</Item>
+                <Item>Assento: {assento}</Item>
               </View>
             </ItemArea>
+            <Button onPress={() => Confirmar()}>
+              <LoginText>Confirmar</LoginText>
+            </Button>
           </SearchDropdown>
         </SearchDropdownArea>
     </Page>
