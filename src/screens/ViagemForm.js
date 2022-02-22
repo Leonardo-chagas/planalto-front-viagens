@@ -4,7 +4,6 @@ import Icon from 'react-native-vector-icons/Entypo';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import styled from 'styled-components/native';
 import DatePicker from 'react-native-datepicker';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DataHandler from '../DataHandler';
 
@@ -16,48 +15,35 @@ const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Container = styled.View`
   width: 90%;
-`;//Area que contem o conteudo principal da tela
-
-const InputView = styled.View`
-  width: 90%;
-  border-bottom-width: 1px;
-  border-bottom-color: #A4A4A4;
-  padding: 5px;
-  margin-bottom: 20px;
-`;//Area que contem os inputs
-
-const Input = styled.TextInput`
-  height: 40px;
-  font-size: 18px;
-  color: black;
-`;//Os inputs em si
-
-const BackButton = styled.TouchableHighlight`
-  background-color: #088A29;
-  color: red;
-  font-size: 22px;
-  font-weight: bold;
-  width: 10%;
 `;
 
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
+const InputView = styled.View`
   width: 100%;
-  justify-content: center;
+  border-bottom-width: 1px;
+  border-bottom-color: #A4A4A4;
+  margin-bottom: 20px;
   padding-left: 10px;
-  padding-top: 10px;
+  overflow: hidden;
+`;
+
+const Input = styled.TextInput.attrs((props) => ({
+  placeholderTextColor: '#A4A4A4',
+}))`
+  height: 40px;
+  font-size: 18px;
+  overflow: hidden;
+  padding: 0;
+  color: #424242;
 `;
 
 const Button = styled.TouchableHighlight`
   margin-bottom: 10px;
   width: 100%;  
-`;//Area que fica os botões
+`;
 
 const LoginText = styled.Text`
   color: white;
@@ -66,7 +52,7 @@ const LoginText = styled.Text`
   padding: 10px;
   border-radius: 5px;
   text-align: center;
-`;//Texto de realizar o login
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -125,8 +111,7 @@ const Touchable = styled.TouchableOpacity``;
 
 const styles = StyleSheet.create({
   datePickerStyle: {
-    width: 200,
-    marginTop: 20,
+    width: 300,
   }
 });
 
@@ -168,25 +153,48 @@ export default function ViagemForm({navigation, route}) {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const onPressOrigem = async () => {
-    const reqCities = await fetch('http://34.207.157.190:5000/city', {
+    try {
+      const reqCities = await fetch('http://34.207.157.190:5000/city', {
         method: 'GET'
       });
-    const jsonCities = await reqCities.json();
-    const cities = jsonCities.cities;
-    navigation.navigate('Pesquisa de Origem', {cities, onReturnOrigem: (item) => {
-      setOrigem(item)
-    }})
+      
+      const jsonCities = await reqCities.json();
+      
+      const cities = jsonCities.cities;
+
+      if(jsonCities.success == false){
+        Alert.alert('Aviso','Erro na busca - ' + jsonCities.message);
+      } else {
+        navigation.navigate('Pesquisa de Origem', {cities: cities, onReturnOrigem: (item) => {setOrigem(item)}})
+      }
+
+    } catch (error) {
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
+    }
   }
 
   const onPressDestino = async () => {
-    const reqCities = await fetch('http://34.207.157.190:5000/city', {
+    try {
+      const reqCities = await fetch('http://34.207.157.190:5000/city', {
         method: 'GET'
       });
-    const jsonCities = await reqCities.json();
-    const cities = jsonCities.cities;
-    navigation.navigate('Pesquisa de Destino', {cities, onReturnDestino: (item) => {
-      setDestino(item)
-    }})
+
+      const jsonCities = await reqCities.json();
+
+      const cities = jsonCities.cities;
+
+      if(jsonCities.success == false){
+        Alert.alert('Aviso','Erro na busca - ' + jsonCities.message);
+      } else {
+        navigation.navigate('Pesquisa de Destino', {cities:cities, onReturnDestino: (item) => {setDestino(item)}})
+      }
+
+    } catch (error) {
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
+    }
+
   }
 
   const Buscar = async () => {
@@ -459,8 +467,14 @@ export default function ViagemForm({navigation, route}) {
               marginLeft: 0,
             },
             dateInput: {
-              marginLeft: 36,
               borderWidth: 0,
+            },
+            dateText: {
+              fontSize: 18,
+            },
+            placeholderText: {
+              fontSize: 18,
+              color: '#A4A4A4',
             },
           }}
           onDateChange={(dataIda) => setDataIda(dataIda)}/>
@@ -470,7 +484,7 @@ export default function ViagemForm({navigation, route}) {
         style={styles.datePickerStyle}
         date={dataVolta}
         mode="date"
-        placeholder="Escolha a data de volta (opcional)"
+        placeholder="Data de volta (opcional)"
         format="DD/MM/YYYY"
         minDate={data}
         maxDate={ultimaData}
@@ -484,8 +498,14 @@ export default function ViagemForm({navigation, route}) {
             marginLeft: 0,
           },
           dateInput: {
-            marginLeft: 36,
             borderWidth: 0,
+          },
+          dateText: {
+            fontSize: 18,
+          },
+          placeholderText: {
+            fontSize: 18,
+            color: '#A4A4A4',
           },
         }}
         onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>

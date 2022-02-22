@@ -29,13 +29,14 @@ const InputView = styled.View`
   padding-left: 50px;
 `
 
-const Input = styled.TextInput`
+const Input  = styled.TextInput.attrs((props) => ({
+  placeholderTextColor: 'white',
+}))`
   background-color: #088A29;
   color: white;
   width: 80%;
   height: 50px;
   font-size: 20px;
-  font-weight: bold;
   padding-horizontal: 10px;
   border-bottom-width: 1px;
   border-bottom-color: white;
@@ -65,22 +66,14 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
-`;
-
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
+  align-items: center;
 `;
 
 const Item = styled.Text`
   font-size: 22px;
   border-bottom-width: 1px;
   border-bottom-color: #A4A4A4;
+  color: #A4A4A4;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -91,64 +84,56 @@ const ItemArea = styled.TouchableHighlight`
 `;
 
 export default function OrigemPesquisa({navigation, route}) {
-    const [dataSource] = useState(route.params.cities);
-    const [filtered, setFiltered] = useState(dataSource);
-    const [origem, setOrigem] = useState('');
-    const OnSearch = (text) => {
-        setOrigem(text);
-        if(text){
-            const temp = text.toString().toLowerCase();
-
-            const tempList = dataSource.filter(item=>{
-                if(item.toString().toLowerCase().startsWith(temp))
-                return item
-            })
-            setFiltered(tempList);
-        }
-        else{
-            setFiltered(dataSource);
-        }
+  console.log(route.params.cities);
+  const [dataSource] = useState(route.params.cities);
+  const [filtered, setFiltered] = useState(dataSource);
+  const [origem, setOrigem] = useState('');
+  const OnSearch = (text) => {
+    setOrigem(text);
+    if(text){
+      const temp = text.toString().toLowerCase();
+      const tempList = dataSource.filter(item=>{
+        if(item.name.toString().toLowerCase().startsWith(temp))
+        return item
+      })
+      setFiltered(tempList);
     }
-
-    const Select = (item) => {
-      setOrigem(item);
-      route.params.onReturnOrigem(item);
-      navigation.goBack();
+    else{
+      setFiltered(dataSource);
     }
+  }
 
-    return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Selecione sua Origem</HeaderText>
-            </Header>
-            <InputView>
-              <Input
-              placeholder={'Ex: Pelotas'}
-              onChangeText={OnSearch}
-              value={origem}
-              />
-            </InputView>
-           
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                    {
-                        filtered.map(item=>{
-                            return(
-                            <ItemArea onPress={() => Select(item)}
-                            navigator={navigation}
-                            underlayColor='#b5b5b5'
-                            activeOpacity={0.6}>
-                            <Item>{item.name}</Item>
-                            </ItemArea>)
-                        })
-                    }
-                    </SearchDropdown>
-                </SearchDropdownArea>
-            
-        </Page>
-    );
+  const Select = (item) => {
+    setOrigem(item);
+    route.params.onReturnOrigem(item);
+    navigation.goBack();
+  }
+
+  return (
+    <Page>
+      <Header>
+        <BackButton onPress={() => navigation.goBack()} underlayColor='#1ab241'>
+          <Icon name="arrowleft" color="white" size={25}/>
+        </BackButton>
+        <HeaderText>Selecione sua Origem</HeaderText>
+      </Header>
+      <InputView>
+        <Input placeholder={'Ex: Pelotas'} onChangeText={OnSearch} value={origem}/>
+      </InputView>
+      <SearchDropdownArea>
+        <SearchDropdown>
+        {filtered.map(item=>{
+          return(
+          <ItemArea onPress={() => Select(item)}
+            navigator={navigation}
+            underlayColor='#b5b5b5'
+            activeOpacity={0.6}>
+            <Item>{item.name}</Item>
+          </ItemArea>
+          )})
+        }
+        </SearchDropdown>
+      </SearchDropdownArea>
+    </Page>
+  );
 }
