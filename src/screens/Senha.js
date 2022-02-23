@@ -93,7 +93,7 @@ export default function Senha ({navigation, route}) {
       
       try {
         const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
-          method: 'PUT',
+          method: 'POST',
           body: JSON.stringify({
             refresh_token: route.params.dataHandler.getRefreshToken()
           }),
@@ -107,12 +107,13 @@ export default function Senha ({navigation, route}) {
         route.params.dataHandler.setAccessToken(responseToken.access_token);
         route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
 
-        const request = await fetch('http://34.207.157.190:5000/put/'+route.params.dataHandler.getUserID(), {
+        const request = await fetch('http://34.207.157.190:5000/update_password/'+route.params.dataHandler.getUserID(), {
           method: 'PUT',
           body: JSON.stringify({
             access_token: route.params.dataHandler.getAccessToken(),
-            name: route.params.name,
-            email: route.params.email,
+            old_password: password,
+            password: novapassword,
+            password_confirmation: confirmapassword
           }),
           headers:{
             'Content-Type': 'application/json'
@@ -120,14 +121,15 @@ export default function Senha ({navigation, route}) {
         })
 
         console.log("Cheguei aqui na atualização da senha!");
-
+        
         const response = await request.json();
-
+        console.log(response)
+        
         if(response.success == false){
           Alert.alert('Aviso','Erro na atualização - ' + response.message);
         } else {
           Alert.alert('Aviso','Senha atualizada!');
-          navigation.navigate('Perfil');
+          navigation.navigate('Perfil', {dataHandler: route.params.dataHandler, userData: route.params.userData});
         }
 
       } catch (error) {

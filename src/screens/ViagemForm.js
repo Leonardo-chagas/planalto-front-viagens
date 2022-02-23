@@ -372,9 +372,9 @@ export default function ViagemForm({navigation, route}) {
   const Perfil = async() => {
     try {
       const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
-        method: 'PUT',
+        method: 'POST',
         body: JSON.stringify({
-          refresh_token: route.params.dataHandler.getRefreshToken()
+          refresh_token: dataHandler.getRefreshToken()
         }),
         headers:{
           'Content-Type': 'application/json'
@@ -383,10 +383,9 @@ export default function ViagemForm({navigation, route}) {
 
       const responseToken = await requestToken.json();
       
-      route.params.dataHandler.setAccessToken(responseToken.access_token);
-      route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+      dataHandler.setAccessToken(responseToken.access_token);
+      dataHandler.setRefreshToken(responseToken.refresh_token);
 
-      console.log(url);
       const requestData = await fetch('http://34.207.157.190:5000/user/'+ dataHandler.getUserID() + '?access_token='+ dataHandler.getAccessToken(), {
         method: 'GET',
         headers:{

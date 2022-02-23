@@ -142,7 +142,7 @@ export default function Login({navigation, route}) {
           },
           body: JSON.stringify({
             user_id: "user_7y9VMeaz4iNRQdQIccT2U",
-            service_id: "service_4thk73p",
+            service_id: "service_c3jgtc9",
             template_id: "template_jkts312",
             accessToken: "610abaf7b813d67ee86184209b5c700e",
             template_params: {
@@ -152,9 +152,13 @@ export default function Login({navigation, route}) {
           })
         })
 
-        const response = await request.json();
+        console.log(request);
 
-        if(response.status == 200){
+        // const response = await request.json();
+
+        // console.log(response);
+
+        if(request.status == 200){
           Alert.alert('Aviso','Email com nova senha enviado!')
         } else {
           Alert.alert('Aviso','Erro envio do e-mail. Tente novamente mais tarde!')        

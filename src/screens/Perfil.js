@@ -4,6 +4,7 @@ import { StyleSheet, Switch, Alert} from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import DatePicker from 'react-native-datepicker';
+import { TextInputMask } from 'react-native-masked-text';
 
 const Page = styled.SafeAreaView`
   flex: 1;
@@ -169,7 +170,7 @@ export default function Cadastro ({navigation, route}) {
 
       try {
         const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
-          method: 'PUT',
+          method: 'POST',
           body: JSON.stringify({
             refresh_token: route.params.dataHandler.getRefreshToken()
           }),
@@ -185,12 +186,13 @@ export default function Cadastro ({navigation, route}) {
 
         const dataarray = datanascimento.split('/');
         const datacerta = dataarray[2] + '-' + dataarray[1] + '-' + dataarray[0];
-        const request = await fetch('http://34.207.157.190:5000/put/'+route.params.dataHandler.getUserID(), {
+        const request = await fetch('http://34.207.157.190:5000/user/'+route.params.dataHandler.getUserID(), {
           method: 'PUT',
           body: JSON.stringify({
             access_token: route.params.dataHandler.getAccessToken(),
             name: nome,
             email: email,
+            email_confirmation: email,
             document: documento,
             phone_type: tipotelefone,
             phone: telefone,
@@ -202,7 +204,7 @@ export default function Cadastro ({navigation, route}) {
             neighbourhood: bairro,
             city: cidade,
             state: estado,
-            enable_sms: isEnabled.toString()
+            enable_sms: isEnabled
           }),
           headers:{
             'Content-Type': 'application/json'
@@ -211,7 +213,10 @@ export default function Cadastro ({navigation, route}) {
 
         console.log("Cheguei aqui na atualização!");
 
+
         const response = await request.json();
+
+        console.log(response);
 
         if(response.success == false){
           Alert.alert('Aviso','Erro na atualização - ' + response.message);
@@ -242,7 +247,7 @@ export default function Cadastro ({navigation, route}) {
         <TitleText>Dados Pessoais</TitleText>
       </Title>
       <Container>
-        <Button onPress={() => navigation.navigate('Senha', {dataHandler: route.params.dataHandler, email: route.params.userData.user.name, name: route.params.userData.user.name})}>
+        <Button onPress={() => navigation.navigate('Senha', {dataHandler: route.params.dataHandler, userData: route.params.userData, email: route.params.userData.user.email, name: route.params.userData.user.name})}>
           <SenhaText>Alterar Senha</SenhaText>
         </Button>
         <InputView>

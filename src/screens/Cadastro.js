@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default function Cadastro ({navigation}) {
+export default function Cadastro ({navigation, route}) {
   
   const datahoje = new Date();
   const datainicial = new Date(1900,0,1);
@@ -195,7 +195,6 @@ export default function Cadastro ({navigation}) {
           }
         })
 
-        console.log(req);
         console.log("Cheguei aqui no cadastro novo!");
 
         const response = await request.json()
@@ -204,7 +203,7 @@ export default function Cadastro ({navigation}) {
           Alert.alert('Aviso','Erro no cadastro - ' + response.message);
         } else {
           Alert.alert('Aviso','Cadastro Realizado');
-          navigation.navigate('Login');
+          navigation.navigate('Login', {dataHandler: route.params.dataHandler});
         }
 
       } catch (error) {
