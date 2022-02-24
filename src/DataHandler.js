@@ -2,10 +2,10 @@ class DataHandler {
     constructor() {
         this.origem = '';
         this.destino = '';
-        this.dataIda = '';
+        this.data = '';
         this.assento = '';
-        this.viagemID = 0;
-        this.assentoID = 0;
+        this.assentoID = '';
+        this.viagemID = '';
         this.accessToken = '';
         this.refreshToken = '';
         this.userID = '';
@@ -27,12 +27,12 @@ class DataHandler {
         this.destino = destino;
     };
 
-    getDataIda() {
-        return this.dataIda;
+    getData() {
+        return this.data;
     };
 
-    setDataIda(dataIda){
-        this.dataIda = dataIda;
+    setData(data){
+        this.data = data;
     };
 
     getAccessToken() {
@@ -57,6 +57,30 @@ class DataHandler {
 
     setUserID(userID){
         this.userID = userID;
+    };
+
+    getAssentoID() {
+        return this.assentoID;
+    };
+
+    setAssentoID(assentoID){
+        this.assentoID = assentoID;
+    };
+
+    getAssento() {
+        return this.assento;
+    };
+
+    setAssento(assento){
+        this.assento = assento;
+    };
+
+    getViagemID() {
+        return this.viagemID;
+    };
+
+    setViagemID(viagemID){
+        this.viagemID = viagemID;
     };
 }
 

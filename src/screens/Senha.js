@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -40,13 +40,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const BackButton = styled.TouchableHighlight`
   background-color: #088A29;
@@ -84,14 +84,62 @@ const LoginText = styled.Text`
 `;
 
 export default function Senha ({navigation, route}) {
-  console.log(route.params.email)
-  
   const [password, setPassword] = useState('');
   const [novapassword, setNovaPassword] = useState('');
   const [confirmapassword, setConfirmaPassword] = useState('');
 
   const atualizarSenha = async () =>{
-    console.log("Vou atualizar!")
+    if ((password && novapassword && confirmapassword) != "") {
+      
+      try {
+        const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+          method: 'POST',
+          body: JSON.stringify({
+            refresh_token: route.params.dataHandler.getRefreshToken()
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const responseToken = await requestToken.json();
+        
+        route.params.dataHandler.setAccessToken(responseToken.access_token);
+        route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+
+        const request = await fetch('http://34.207.157.190:5000/update_password/'+route.params.dataHandler.getUserID(), {
+          method: 'PUT',
+          body: JSON.stringify({
+            access_token: route.params.dataHandler.getAccessToken(),
+            old_password: password,
+            password: novapassword,
+            password_confirmation: confirmapassword
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+
+        console.log("Cheguei aqui na atualização da senha!");
+        
+        const response = await request.json();
+        console.log(response)
+        
+        if(response.success == false){
+          Alert.alert('Aviso','Erro na atualização - ' + response.message);
+        } else {
+          Alert.alert('Aviso','Senha atualizada!');
+          navigation.navigate('Perfil', {dataHandler: route.params.dataHandler, userData: route.params.userData});
+        }
+
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
+      }
+
+    } else {
+      Alert.alert('Aviso','Preencha todas as informações!')
+    }
   }
 
   return (

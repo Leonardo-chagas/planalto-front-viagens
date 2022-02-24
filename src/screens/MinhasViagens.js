@@ -141,6 +141,16 @@ justify-content: center;
 padding: 10px;
 `;
 
+const styles = StyleSheet.create({
+  active: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#088A29',
+  },
+  inactive: {
+    borderBottomWidth: 0,
+  }
+});
+
 export default function MinhasViagens({navigation, route}) {
 
   const [screen, setScreen] = useState(0);
@@ -183,22 +193,20 @@ export default function MinhasViagens({navigation, route}) {
 
   const OnPressCancelarViagem = async () => {
     const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
-          method: 'DELETE',
-          body: JSON.stringify({
-            access_token: route.params.dataHandler.getAccessToken()
-          }),
-          headers:{
-            'Content-Type': 'application/json'
-          }
-        });
-        const json = await req.json();
-        if(json.success){
-          alert('Viagem Cancelada com sucesso');
-          
-        }
-        else{
-          alert("Não foi possível cancelar a viagem");
-        }
+      method: 'DELETE',
+      body: JSON.stringify({
+        access_token: route.params.dataHandler.getAccessToken()
+      }),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    });
+    const json = await req.json();
+    if(json.success) {
+      alert('Viagem Cancelada com sucesso');
+    } else {
+      alert("Não foi possível cancelar a viagem");
+    }
   }
 
   const Voucher = () => {
@@ -206,109 +214,93 @@ export default function MinhasViagens({navigation, route}) {
     navigation.navigate("Voucher");
   }
 
-    return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Viagens</HeaderText>
-            </Header>
-
-            <ScreensHeader>
-              <ScreenArea onPress={() => setScreen(0)}  style={screen == 0 ? styles.active : styles.inactive}>
-                <ScreenText>Ag. Retirada</ScreenText>
-              </ScreenArea>
-              <ScreenArea onPress={() => setScreen(1)} style={screen == 1 ? styles.active : styles.inactive}>
-                <ScreenText>Devoluções</ScreenText>
-              </ScreenArea>
-              <ScreenArea onPress={() => setScreen(2)} style={screen == 2 ? styles.active : styles.inactive}>
-                <ScreenText>Finalizadas</ScreenText>
-              </ScreenArea>
-            </ScreensHeader>
-
-            <VoucherArea 
-            visible={voucherVisible}
-            transparent={true}>
-              <VoucherAreaBody onPressOut={()=>setVoucherVisible(false)}>
-                <TouchableWithoutFeedback>
-                  <Box>
-                    <Button onPress={() => Voucher()}>
-                      <LoginText>Visualizar Voucher</LoginText>
-                    </Button>
-                    <Button onPress={OnPressTrocarViagem}>
-                      <LoginText>Trocar Data da Viagem</LoginText>
-                    </Button>
-                    <Button onPress={OnPressCancelarViagem}>
-                      <LoginText>Cancelar Viagem</LoginText>
-                    </Button>
-                  </Box>
-                </TouchableWithoutFeedback>
-              </VoucherAreaBody>
-            </VoucherArea>
-           
-           {screen == 0 &&
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                      {
-                        ret.map(item=>{
-                          return(
-                        <ItemArea key={item.id}>
-                          <Item>{item.origin} ------{'>'} {item.destination}</Item>
-                          <Item>Data: {item.tripdate}</Item>
-                          <Item>Valor Total: R$ {String(item.price)}</Item>
-                          <VoucherLink onPress={()=>ViewVoucher(item)}>
-                            <VoucherText>Opções</VoucherText>
-                          </VoucherLink>
-                        </ItemArea>)
-                        })
-                      }
-                    </SearchDropdown>
-                </SearchDropdownArea>
+  return (
+    <Page>
+      <Header>
+        <BackButton onPress={() => navigation.goBack()}
+        underlayColor='#1ab241'>
+          <Icon name="arrowleft" color="white" size={25}/>
+        </BackButton>
+        <HeaderText>Viagens</HeaderText>
+      </Header>
+      <ScreensHeader>
+        <ScreenArea onPress={() => setScreen(0)}  style={screen == 0 ? styles.active : styles.inactive}>
+          <ScreenText>Ag. Retirada</ScreenText>
+        </ScreenArea>
+        <ScreenArea onPress={() => setScreen(1)} style={screen == 1 ? styles.active : styles.inactive}>
+          <ScreenText>Devoluções</ScreenText>
+        </ScreenArea>
+        <ScreenArea onPress={() => setScreen(2)} style={screen == 2 ? styles.active : styles.inactive}>
+          <ScreenText>Finalizadas</ScreenText>
+        </ScreenArea>
+      </ScreensHeader>
+      <VoucherArea 
+        visible={voucherVisible}
+        transparent={true}>
+        <VoucherAreaBody onPressOut={()=>setVoucherVisible(false)}>
+          <TouchableWithoutFeedback>
+            <Box>
+              <Button onPress={() => Voucher()}>
+                <LoginText>Visualizar Voucher</LoginText>
+              </Button>
+              <Button onPress={OnPressTrocarViagem}>
+                <LoginText>Trocar Data da Viagem</LoginText>
+              </Button>
+              <Button onPress={OnPressCancelarViagem}>
+                <LoginText>Cancelar Viagem</LoginText>
+              </Button>
+            </Box>
+          </TouchableWithoutFeedback>
+        </VoucherAreaBody>
+      </VoucherArea>
+      {screen == 0 &&
+        <SearchDropdownArea>
+          <SearchDropdown>
+            {ret.map(item=>{
+              return(
+                <ItemArea key={item.id}>
+                  <Item>{item.origin} ------{'>'} {item.destination}</Item>
+                  <Item>Data: {item.tripdate}</Item>
+                  <Item>Valor Total: R$ {String(item.price)}</Item>
+                  <VoucherLink onPress={()=>ViewVoucher(item)}>
+                    <VoucherText>Opções</VoucherText>
+                  </VoucherLink>
+                </ItemArea>
+              )})
             }
-            {screen == 1 &&
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                      {
-                        dev.map(item=>{
-                          return(
-                        <ItemArea key={item.id}>
-                            <Item>{item.origem} ------{'>'} {item.destino}</Item>
-                            <Item>Data: {item.dataIda}</Item>
-                            <Item>NSU: {item.nsu}</Item>
-                          </ItemArea>)
-                      })
-                      }
-                    </SearchDropdown>
-                </SearchDropdownArea>
+          </SearchDropdown>
+        </SearchDropdownArea>
+      }
+      {screen == 1 &&
+        <SearchDropdownArea>
+          <SearchDropdown>
+            {dev.map(item=>{
+              return(
+                <ItemArea key={item.id}>
+                  <Item>{item.origem} ------{'>'} {item.destino}</Item>
+                  <Item>Data: {item.dataIda}</Item>
+                  <Item>NSU: {item.nsu}</Item>
+                </ItemArea>
+              )})
             }
-            {screen == 2 &&
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                      {
-                        fin.map(item=>{
-                        return(
-                      <ItemArea key={item.id}>
-                        <Item>{item.origem} ------{'>'} {item.destino}</Item>
-                        <Item>Data: {item.dataIda}</Item>
-                        <Item>NSU: {item.nsu}</Item>
-                      </ItemArea>)
-                      })
-                      }
-                    </SearchDropdown>
-                </SearchDropdownArea>
+          </SearchDropdown>
+        </SearchDropdownArea>
+      }
+      {screen == 2 &&
+        <SearchDropdownArea>
+          <SearchDropdown>
+            {fin.map(item=>{
+              return(
+                <ItemArea key={item.id}>
+                  <Item>{item.origem} ------{'>'} {item.destino}</Item>
+                  <Item>Data: {item.dataIda}</Item>
+                  <Item>NSU: {item.nsu}</Item>
+                </ItemArea>
+              )})
             }
-        </Page>
-    );
+          </SearchDropdown>
+        </SearchDropdownArea>
+      }
+    </Page>
+  );
 }
-
-const styles = StyleSheet.create({
-  active: {
-    borderBottomWidth: 3,
-    borderBottomColor: '#088A29',
-  },
-  inactive: {
-    borderBottomWidth: 0,
-  }
-});

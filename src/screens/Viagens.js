@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -16,13 +15,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
@@ -46,23 +45,15 @@ const BackButton = styled.TouchableHighlight`
   font-weight: bold;
   width: 10%;
   margin-top: 13px;
-`;
-
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
+  align-items: center;
 `;
 
 const Item = styled.Text`
-  font-size: 22px;
+  font-size: 20px;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
+  color: #A4A4A4;
 `;
 
 const ItemArea = styled.TouchableHighlight`
@@ -75,54 +66,107 @@ const ItemArea = styled.TouchableHighlight`
 `;
 
 export default function Viagens({navigation, route}) {
-    const [viagens, setViagens] = useState(route.params.viagens);
-    const [origem, setOrigem] = useState(route.params.origem);
-    const [destino, setDestino] = useState(route.params.destino);
-    const [dataIda, setDataIda] = useState(route.params.dataIda);
+    const [viagensIda] = useState(route.params.viagensIda);
+    const [viagensVolta] = useState(route.params.viagensVolta);
+    console.log(viagensIda);
+    console.log(viagensVolta);
 
-    const ComprarViagem = async (id, busID) => {
+    const formatarData = (data) => {
+      let d = new Date (data);
+      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`
+    }
+
+    const formatarHora = (data) => {
+      let d = new Date (data);
+      return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+    }
+
+    const comprarViagem = async (trip) => {
+      console.log("entrei aqui")
+      console.log(trip.id)
       var busSeats = [];
-      const req = await fetch('http://34.207.157.190:5000/seat');
-      const json = await req.json();
-      json.seats.forEach(item => {
-        if(item.bus_id == busID){
-          busSeats.push(item);
+
+      try {
+        const request = await fetch('http://34.207.157.190:5000/trip/'+trip.id, {
+          method: 'GET'
+        });
+      
+        const response = await request.json();
+      
+        if (response.success == true) {
+          busSeats = response.trip.bus.Seats;
+          console.log(busSeats)
+          navigation.navigate('Assentos', {busSeats: busSeats, trip: response, dataHandler: route.params.dataHandler});
+        } else {
+          Alert.alert('Aviso', 'Erro na busca!')
+        }
+    
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
       }
-    });
-    DataHandler.viagemID = id;
-    //busSeats = [1, 2, 3, 4, 5];
-    navigation.navigate('Assentos', {seats: busSeats, origem: origem, destino: destino, dataIda: dataIda, id:id});
     }
 
     return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Viagens</HeaderText>
-            </Header>
-           
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                    {
-                        viagens.map(item=>{
-                            return(
-                            <ItemArea onPress={() => ComprarViagem(item.id, item.busID)}
-                            navigator={navigation}
-                            underlayColor='#b5b5b5'
-                            activeOpacity={0.6}>
-                            <View>
-                                <Item>Ida: {item.dataIda}</Item>
-                                <Item>Assentos disponíveis: {32}</Item>
-                                <Item>Preço: R${item.preco}</Item>
-                            </View>
-                            </ItemArea>)
-                        })
-                    }
-                    </SearchDropdown>
-                </SearchDropdownArea>
-        </Page>
+      <Page>
+        <Header>
+          <BackButton onPress={() => navigation.goBack()} underlayColor='#1ab241'>
+            <Icon name="arrowleft" color="white" size={25}/>
+          </BackButton>
+          <HeaderText>Viagens</HeaderText>
+        </Header>
+        <SearchDropdownArea>
+          {route.params.viagensVolta == "" &&
+            <SearchDropdown>
+              {viagensIda.map(item=>{
+                  return(
+                  <ItemArea key={item.id} onPress={() => comprarViagem(item)}
+                    navigator={navigation}
+                    underlayColor='#b5b5b5'
+                    activeOpacity={0.6}>
+                    <View>
+                      <Item>Data: {formatarData(item.tripdate)}</Item>
+                      <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                      <Item>Preço: R${item.price.toFixed(2)}</Item>
+                    </View>
+                  </ItemArea>
+                )})
+              }
+            </SearchDropdown>
+          }
+          {route.params.viagensVolta != "" &&
+            <SearchDropdown>
+              {viagensIda.map(item=>{
+                  return(
+                  <ItemArea key={item.id} onPress={() => comprarViagem(item)}
+                    navigator={navigation}
+                    underlayColor='#b5b5b5'
+                    activeOpacity={0.6}>
+                    <View>
+                      <Item>Data: {formatarData(item.tripdate)}</Item>
+                      <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                      <Item>Preço: R${item.price.toFixed(2)}</Item>
+                    </View>
+                  </ItemArea>
+                )})
+              }
+              {viagensVolta.map(item=>{
+                return(
+                <ItemArea key={item.id} onPress={() => comprarViagem(item)}
+                  navigator={navigation}
+                  underlayColor='#b5b5b5'
+                  activeOpacity={0.6}>
+                  <View>
+                    <Item>Data: {formatarData(item.tripdate)}</Item>
+                    <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                    <Item>Preço: R${item.price.toFixed(2)}</Item>
+                  </View>
+                </ItemArea>
+              )})
+              }
+            </SearchDropdown>
+          }
+        </SearchDropdownArea>
+      </Page>
     );
 }

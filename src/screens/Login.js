@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image } from 'react-native';
+import { Image, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -14,16 +14,22 @@ const Container = styled.View`
 `;
 
 const InputView = styled.View`
-  width: 90%;
+  width: 100%;
   border-bottom-width: 1px;
   border-bottom-color: #A4A4A4;
-  padding: 5px;
   margin-bottom: 20px;
+  padding-left: 10px;
+  overflow: hidden;
 `;
 
-const Input = styled.TextInput`
+const Input = styled.TextInput.attrs((props) => ({
+  placeholderTextColor: '#A4A4A4',
+}))`
   height: 40px;
   font-size: 18px;
+  overflow: hidden;
+  padding: 0;
+  color: #424242;
 `;
 
 const Button = styled.TouchableHighlight`
@@ -51,7 +57,7 @@ const SenhaText = styled.Text`
 const CadastroText = styled.Text`
   color: #2E9AFE;
   font-size: 24px;
-  padding: 10px;
+  padding: 5px;
   border-radius: 5px;
   text-align: center;
 `;
@@ -62,13 +68,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const BackButton = styled.TouchableHighlight`
   background-color: #088A29;
@@ -86,65 +92,74 @@ export default function Login({navigation, route}) {
   const [password, setPassword] = useState('');
 
   const aguardarLogin = async () => {
-    if (password != '' && username != '') {
-      //alert("Informações preenchidas: "+username+" - "+password)
-      const req = await fetch('http://34.207.157.190:5000/login', {
-        method: 'POST',
-        body: JSON.stringify({
-          //username: username,
-          email: username,
-          password: password
-        }),
-        headers:{
-            'Content-Type': 'application/json'
-        }
-      });
-      const json = await req.json();
-      console.log(json.access_token);
+    if (password !== "" && username !== "") {
 
-      if(json.success == true){
-        // DataHandler.token = json.access_token
-        route.params.dataHandler.setAccessToken(json.access_token);
-        route.params.dataHandler.setRefreshToken(json.refresh_token);
-        route.params.dataHandler.setUserID(json.user.id);
-        navigation.navigate('Pesquisa de Viagens');
-       } else {
-        alert('Login Negado - ' + json.message);
-      } 
+      try {
+        const request = await fetch('http://34.207.157.190:5000/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: username,
+            password: password
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const response = await request.json();
+
+        if(response.success == true){
+          route.params.dataHandler.setAccessToken(response.access_token);
+          route.params.dataHandler.setRefreshToken(response.refresh_token);
+          route.params.dataHandler.setUserID(response.user.id);
+          if(route.params.isBuying == true){
+            navigation.navigate('Confirmar', {dataHandler: route.params.dataHandler, trip: route.params.trip});
+          } else {
+            navigation.navigate('Pesquisa de Viagens');
+          }
+        } else {
+          Alert.alert('Aviso','Login Negado - ' + response.message);
+        }
+
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
+      }
 
     } else {
-      alert('Preencha as informações!')
+      Alert.alert('Aviso','Preencha toda as informações!')
     }
   }
 
   const recuperarSenha = async () => {
-    if (username != '') {
-      const req = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers:{
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id: "user_7y9VMeaz4iNRQdQIccT2U",
-          service_id: "service_4thk73p",
-          template_id: "template_jkts312",
-          accessToken: "610abaf7b813d67ee86184209b5c700e",
-          template_params: {
-            e_mail: username,
-            password: "teste"
-          }
-        })
-      });
-      
-      console.log(req);
+    if (username !== "") {
 
-      if(req.status == 200){
-        alert('Email com nova senha enviado!')
-      } else {
-        alert('Erro envio do e-mail')        
-      } 
+      try {
+        const request = await fetch('http://34.207.157.190:5000/reset_password', {
+          method: 'POST', 
+          body: JSON.stringify({
+            email: username 
+          })
+        })
+        console.log(request);
+
+        const response = await request.json();
+
+        console.log(response);
+
+        if(response.success == true){
+          Alert.alert('Aviso', 'Nova senha enviada por e-mail!')
+        } else {
+          Alert.alert('Aviso','Erro na recuperação - ' + response.message);
+        }
+
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
+      }
+
     } else {
-      alert('Preencha o e-mail!')
+      Alert.alert('Aviso','Preencha o campo de e-mail!')
     }
   }
   

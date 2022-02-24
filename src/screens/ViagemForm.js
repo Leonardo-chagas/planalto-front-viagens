@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, StyleSheet, TouchableWithoutFeedback, View, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import styled from 'styled-components/native';
 import DatePicker from 'react-native-datepicker';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DataHandler from '../DataHandler';
 
@@ -16,48 +15,35 @@ const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Container = styled.View`
   width: 90%;
-`;//Area que contem o conteudo principal da tela
-
-const InputView = styled.View`
-  width: 90%;
-  border-bottom-width: 1px;
-  border-bottom-color: #A4A4A4;
-  padding: 5px;
-  margin-bottom: 20px;
-`;//Area que contem os inputs
-
-const Input = styled.TextInput`
-  height: 40px;
-  font-size: 18px;
-  color: black;
-`;//Os inputs em si
-
-const BackButton = styled.TouchableHighlight`
-  background-color: #088A29;
-  color: red;
-  font-size: 22px;
-  font-weight: bold;
-  width: 10%;
 `;
 
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
+const InputView = styled.View`
   width: 100%;
-  justify-content: center;
+  border-bottom-width: 1px;
+  border-bottom-color: #A4A4A4;
+  margin-bottom: 20px;
   padding-left: 10px;
-  padding-top: 10px;
+  overflow: hidden;
+`;
+
+const Input = styled.TextInput.attrs((props) => ({
+  placeholderTextColor: '#A4A4A4',
+}))`
+  height: 40px;
+  font-size: 18px;
+  overflow: hidden;
+  padding: 0;
+  color: #424242;
 `;
 
 const Button = styled.TouchableHighlight`
   margin-bottom: 10px;
   width: 100%;  
-`;//Area que fica os botões
+`;
 
 const LoginText = styled.Text`
   color: white;
@@ -66,7 +52,7 @@ const LoginText = styled.Text`
   padding: 10px;
   border-radius: 5px;
   text-align: center;
-`;//Texto de realizar o login
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -125,8 +111,7 @@ const Touchable = styled.TouchableOpacity``;
 
 const styles = StyleSheet.create({
   datePickerStyle: {
-    width: 200,
-    marginTop: 20,
+    width: 300,
   }
 });
 
@@ -160,90 +145,223 @@ export default function ViagemForm({navigation, route}) {
   const ultimoAno = novoAno.toString();
   const ultimaData = '28/' + ultimoMes + '/' + ultimoAno;
 
-  const [origem, setOrigem] = useState({name: ''});
-  const [destino, setDestino] = useState({name: ''});
+  const [origem, setOrigem] = useState('');
+  const [destino, setDestino] = useState('');
   const [dataIda, setDataIda] = useState(data);
-  const [maxData] = useState(ultimaData);
   const [dataVolta, setDataVolta] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
 
   const onPressOrigem = async () => {
-    const reqCities = await fetch('http://34.207.157.190:5000/city', {
+    try {
+      const reqCities = await fetch('http://34.207.157.190:5000/city', {
         method: 'GET'
       });
-    const jsonCities = await reqCities.json();
-    const cities = jsonCities.cities;
-    navigation.navigate('Pesquisa de Origem', {cities, onReturnOrigem: (item) => {
-      setOrigem(item)
-    }})
+      
+      const jsonCities = await reqCities.json();
+      
+      const cities = jsonCities.cities;
+
+      if(jsonCities.success == false){
+        Alert.alert('Aviso','Erro na busca - ' + jsonCities.message);
+      } else {
+        navigation.navigate('Pesquisa de Origem', {cities: cities, onReturnOrigem: (item) => {setOrigem(item)}})
+      }
+
+    } catch (error) {
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
+    }
   }
 
   const onPressDestino = async () => {
-    const reqCities = await fetch('http://34.207.157.190:5000/city', {
+    try {
+      const reqCities = await fetch('http://34.207.157.190:5000/city', {
         method: 'GET'
       });
-    const jsonCities = await reqCities.json();
-    const cities = jsonCities.cities;
-    navigation.navigate('Pesquisa de Destino', {cities, onReturnDestino: (item) => {
-      setDestino(item)
-    }})
+
+      const jsonCities = await reqCities.json();
+
+      const cities = jsonCities.cities;
+
+      if(jsonCities.success == false){
+        Alert.alert('Aviso','Erro na busca - ' + jsonCities.message);
+      } else {
+        navigation.navigate('Pesquisa de Destino', {cities:cities, onReturnDestino: (item) => {setDestino(item)}})
+      }
+
+    } catch (error) {
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
+    }
+
   }
 
   const Buscar = async () => {
-    if(origem && destino && dataIda){
-      const dataArray = dataIda.split('/');
-      const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
-      const reqteste = await fetch('http://34.207.157.190:5000/trip');
-      const jsonteste = await reqteste.json();
-      console.log(dataCerta);
-      console.log(jsonteste);
-      const req = await fetch('http://34.207.157.190:5000/tripByDate', {
-        method: 'POST',
-        body: JSON.stringify({
-          tripdate: dataCerta,
-          origin_id: origem.id,
-          destination_id: destino.id
-        }),
-        headers:{
-          'Content-type': 'application/json'
+    if (dataVolta !== "") {
+      if(origem && destino && dataIda !== "") {
+        try {
+          const dataArray = dataIda.split('/');
+          const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
+
+          const reqTripIda = await fetch('http://34.207.157.190:5000/tripByDate', {
+            method: 'POST',
+            body: JSON.stringify({
+              tripdate : dataCerta,
+              origin_id: origem.id,
+              destination_id: destino.id
+            }),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const responseTripIda = await reqTripIda.json();
+          console.log(responseTripIda);
+  
+          if(responseTripIda.success) {
+
+            console.log(responseTripIda.trips);
+
+            const reqTripVolta = await fetch('http://34.207.157.190:5000/tripByDate', {
+              method: 'POST',
+              body: JSON.stringify({
+                tripdate : dataCerta,
+                origin_id: destino.id,
+                destination_id: origem.id
+              }),
+              headers:{
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const responseTripVolta = await reqTripVolta.json();
+            console.log(responseTripVolta);
+    
+            if(responseTripVolta.success) {
+    
+              console.log(responseTripVolta.trips);
+    
+              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: responseTripVolta, dataHandler: dataHandler})
+            } else {
+              console.log(responseTripVolta.message);
+              Alert.alert('Aviso','Não foi encontrada nenhuma viagem de volta para esta data');
+              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
+            }
+
+          } else {
+            console.log(responseTripIda.message);
+            Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida para esta data');
+            const reqTripVolta = await fetch('http://34.207.157.190:5000/tripByDate', {
+              method: 'POST',
+              body: JSON.stringify({
+                tripdate : dataCerta,
+                origin_id: destino.id,
+                destination_id: origem.id
+              }),
+              headers:{
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const responseTripVolta = await reqTripVolta.json();
+            console.log(responseTripVolta);
+    
+            if(responseTripVolta.success) {
+    
+              console.log(responseTripVolta.trips);
+    
+              navigation.navigate('Viagens', {viagensIda: [], viagensVolta: responseTripVolta, dataHandler: dataHandler})
+            } else {
+              Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida ou volta para esta data');
+            }
+          }
+  
+        } catch (error) {
+          Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+          console.log(error);
         }
-      });
-      var viagens = [];
-      const json = await req.json();
-      if(json.success){
-        json.trips.forEach(item => {
-          viagens.push({dataIda:item.tripdate, preco:item.price, id:item.id, busID: item.bus_id});
-        })
-        //const viagens = [{ida:'12/03/2021',assentos:32, preco:102.09, id: 123}];
-        dataHandler.setOrigem(origem);
-        dataHandler.setDestino(destino);
-        dataHandler.setDataIda(dataIda);
-        navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
+      } else {
+        alert('Preencha os campos obrigatórios');
       }
-      else{
-        console.log(json);
-        alert('Não foi encontrada nenhuma viagem para esta data');
+    } else {
+      if(origem && destino && dataIda !== "") {
+        try {
+          const dataArray = dataIda.split('/');
+          const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
+
+          const reqTripIda = await fetch('http://34.207.157.190:5000/tripByDate', {
+            method: 'POST',
+            body: JSON.stringify({
+              tripdate : dataCerta,
+              origin_id: origem.id,
+              destination_id: destino.id
+            }),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          console.log(JSON.stringify({
+            tripdate : dataCerta,
+            origin_id: origem.id,
+            destination_id: destino.id}))
+
+          const responseTripIda = await reqTripIda.json();
+          console.log(responseTripIda);
+  
+          if(responseTripIda.success) {
+
+            console.log(responseTripIda.trips);
+  
+            navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
+          }
+          else {
+            console.log(responseTripIda.message);
+            Alert.alert('Aviso','Não foi encontrada nenhuma viagem para esta data');
+          }
+  
+        } catch (error) {
+          Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+          console.log(error);
+        }
+      } else {
+        alert('Preencha os campos obrigatórios');
       }
-    }
-    else{
-      alert('Preencha os campos obrigatórios');
     }
   }
   
   const MinhasViagens = async () => {
-    var ret = [];
-    var dev = [];
-    var fin = [];
+    var ret = []
+    var dev = []
+    var fin = []
 
-    /* ret = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 9},
-          {origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', valor: '143,40', code: 'Some string value', id: 10}];
+    const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+      method: 'POST',
+      body: JSON.stringify({
+        refresh_token: dataHandler.getRefreshToken()
+      }),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    })
 
-    dev = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}];
+    const responseToken = await requestToken.json();
+    
+    dataHandler.setAccessToken(responseToken.access_token);
+    dataHandler.setRefreshToken(responseToken.refresh_token);
 
-    fin = [{origem: 'Pelotas - RS', destino: 'Porto Alegre - RS', dataIda: '16/02/2022 16:19', nsu: '23843749144184', id: 9}]; */
+    const req = await fetch('http://34.207.157.190:5000/reservation/getByuser', {
+      method: 'POST',
+      body: JSON.stringify({
+        access_token: dataHandler.getAccessToken()
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
 
-    const req = await fetch('http://34.207.157.190:5000/reservation?access_token=' + dataHandler.getAccessToken());
     const json = await req.json();
+    
     if(json.success){
       json.reservations.forEach(async item => {
         if(item.user_id == dataHandler.getUserID()){
@@ -295,7 +413,7 @@ export default function ViagemForm({navigation, route}) {
 
   const Login = () => {
     setMenuVisible(false);
-    navigation.navigate('Login', {dataHandler: dataHandler})
+    navigation.navigate('Login', {dataHandler: dataHandler, isBuying: false})
   }
 
   const Cadastrar = () => {
@@ -304,19 +422,39 @@ export default function ViagemForm({navigation, route}) {
   }
 
   const Perfil = async() => {
+    try {
+      const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+        method: 'POST',
+        body: JSON.stringify({
+          refresh_token: dataHandler.getRefreshToken()
+        }),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
 
-    const url = 'http://34.207.157.190:5000/user/'+dataHandler.getUserID()+'?access_token='+dataHandler.getAccessToken();
-    console.log(url);
-    const req = await fetch(url, {
-      method: 'GET',
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    });
-    console.log("Cheguei aqui!")
-    const userData = await req.json();
-    setMenuVisible(false)
-    navigation.navigate('Perfil', {userData: userData, dataHandler: dataHandler})
+      const responseToken = await requestToken.json();
+      
+      dataHandler.setAccessToken(responseToken.access_token);
+      dataHandler.setRefreshToken(responseToken.refresh_token);
+
+      const requestData = await fetch('http://34.207.157.190:5000/user/'+ dataHandler.getUserID() + '?access_token='+ dataHandler.getAccessToken(), {
+        method: 'GET',
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log("Cheguei aqui!")
+      const userData = await requestData.json();
+
+      setMenuVisible(false);
+      navigation.navigate('Perfil', {userData: userData, dataHandler: dataHandler});
+
+    } catch (error) {
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
+    }
   }
 
   const Sair = () => {
@@ -327,10 +465,6 @@ export default function ViagemForm({navigation, route}) {
     navigation.navigate('Pesquisa de Viagens')
   }
   
-  console.log("Esse é o token: "+ dataHandler.getAccessToken())
-  console.log("Esse é o refresh: "+ dataHandler.getRefreshToken())
-  console.log("Esse é o ID: "+ dataHandler.getUserID())
-
   return (
     <Page>
       <Menu visible={menuVisible}
@@ -368,31 +502,31 @@ export default function ViagemForm({navigation, route}) {
                 </View>
               </MenuItem>
             </Box>
-            }
-            {dataHandler.getAccessToken() == '' &&
-              <Box>
-              <MenuItem onPress={()=>setMenuVisible(false)}>
-                <View>
-                  <Icon name="home" color="#aaaaaa" size={25}/>
-                  <MenuItemText>Home</MenuItemText>
-                </View>
-              </MenuItem>
+          }
+          {dataHandler.getAccessToken() == '' &&
+            <Box>
+            <MenuItem onPress={()=>setMenuVisible(false)}>
+              <View>
+                <Icon name="home" color="#aaaaaa" size={25}/>
+                <MenuItemText>Home</MenuItemText>
+              </View>
+            </MenuItem>
 
-              <MenuItem onPress={()=>Login()}>
-                <View>
-                  <Icon name="lock-open" color="#aaaaaa" size={25}/>
-                  <MenuItemText>Entrar</MenuItemText>
-                </View>
-              </MenuItem>
+            <MenuItem onPress={()=>Login()}>
+              <View>
+                <Icon name="lock-open" color="#aaaaaa" size={25}/>
+                <MenuItemText>Entrar</MenuItemText>
+              </View>
+            </MenuItem>
 
-              <MenuItem onPress={()=>Cadastrar()}>
-                <View>
-                  <Icon name="lock-open"  color="#aaaaaa" size={25}/>
-                  <MenuItemText>Cadastrar</MenuItemText>
-                </View>
-              </MenuItem>
-            </Box>
-            }
+            <MenuItem onPress={()=>Cadastrar()}>
+              <View>
+                <Icon name="lock-open"  color="#aaaaaa" size={25}/>
+                <MenuItemText>Cadastrar</MenuItemText>
+              </View>
+            </MenuItem>
+          </Box>
+          }
           {/* </TouchableWithoutFeedback> */}
         </MenuBody>
       </Menu>
@@ -444,8 +578,14 @@ export default function ViagemForm({navigation, route}) {
               marginLeft: 0,
             },
             dateInput: {
-              marginLeft: 36,
               borderWidth: 0,
+            },
+            dateText: {
+              fontSize: 18,
+            },
+            placeholderText: {
+              fontSize: 18,
+              color: '#A4A4A4',
             },
           }}
           onDateChange={(dataIda) => setDataIda(dataIda)}/>
@@ -455,7 +595,7 @@ export default function ViagemForm({navigation, route}) {
         style={styles.datePickerStyle}
         date={dataVolta}
         mode="date"
-        placeholder="Escolha a data de volta (opcional)"
+        placeholder="Data de volta (opcional)"
         format="DD/MM/YYYY"
         minDate={data}
         maxDate={ultimaData}
@@ -469,8 +609,14 @@ export default function ViagemForm({navigation, route}) {
             marginLeft: 0,
           },
           dateInput: {
-            marginLeft: 36,
             borderWidth: 0,
+          },
+          dateText: {
+            fontSize: 18,
+          },
+          placeholderText: {
+            fontSize: 18,
+            color: '#A4A4A4',
           },
         }}
         onDateChange={(dataVolta) => {setDataVolta(dataVolta)}}/>
