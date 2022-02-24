@@ -51,10 +51,10 @@ const BackButton = styled.TouchableHighlight`
 
 const Item = styled.Text`
   font-size: 22px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-top: 20px;
   align-items: center;
   justify-content: center;
+  color: #A4A4A4;
 `;
 
 const ItemArea = styled.View`
@@ -67,9 +67,20 @@ const ItemArea = styled.View`
   background-color: white;
   align-items: center;
   justify-content: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
 `;
 
 export default function Voucher({navigation, route}) {
+  const formatarData = (data) => {
+    let d = new Date (data);
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`
+  }
+
+  const formatarHora = (data) => {
+    let d = new Date (data);
+    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+  }
 
   return (
     <Page>
@@ -82,17 +93,16 @@ export default function Voucher({navigation, route}) {
       <SearchDropdownArea>
         <SearchDropdown>
           <ItemArea>
-              <Item>{'origem'} - {'>'} {'destino'}</Item>
-              <Item>{'data'}</Item>
               <QRCode
                 value='Some string value'
                 color={'black'}
                 backgroundColor={'white'}
-                size={150}/>
-              <Item>Horário: {'hora'}</Item>
-              <Item>Assento: {'assento'}</Item>
-              <Item>Ônibus: {'placa'}</Item>
-              <Item>Status do Pagamento: {'pendente'}</Item>
+                size={200}/>
+              <Item>{route.params.trip.origin.name} ------{'>'} {route.params.trip.destination.name}</Item>
+              <Item>Saída: {formatarData(route.params.trip.tripdate)} {formatarHora(route.params.trip.tripdate)}</Item>
+              <Item>Assento: {route.params.seat.name} ({route.params.seat.description})</Item>
+              <Item>Ônibus: {route.params.trip.bus.plate} ({route.params.trip.bus.model})</Item>
+              <Item>Pagamento: Aprovado</Item>
           </ItemArea>
         </SearchDropdown>
       </SearchDropdownArea>

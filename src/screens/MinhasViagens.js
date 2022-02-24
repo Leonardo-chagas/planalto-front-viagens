@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -218,14 +218,25 @@ export default function MinhasViagens({navigation, route}) {
       const jsontrip = await reqtrip.json();
   
       if(jsontrip.success){
-        console.log(jsontrip)
+        console.log(jsontrip.trip)
+
+        const reqseat = await fetch('http://34.207.157.190:5000/seat/' + currentItem.seat_id);
+        const jsonseat = await reqseat.json();
+
+        if (jsonseat.success) {
+          setVoucherVisible(false);
+          navigation.navigate("Voucher", {trip: jsontrip.trip, seat: jsonseat.seat});
+        } else {
+          Alert('Aviso', 'Erro na busca do voucher - ' + jsontrip.message)
+        }
+      } else {
+        Alert('Aviso', 'Erro na busca do voucher - ' + jsontrip.message)
       }
   
-      setVoucherVisible(false);
-      navigation.navigate("Voucher");
 
     } catch (error) {
-
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
     }
   }
 
