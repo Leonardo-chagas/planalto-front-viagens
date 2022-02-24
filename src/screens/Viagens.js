@@ -95,7 +95,9 @@ export default function Viagens({navigation, route}) {
       
         if (response.success == true) {
           busSeats = response.trip.bus.Seats;
-          console.log(busSeats)
+          console.log(busSeats);
+          console.log("Estou aqui!");
+          console.log(response.trip);
           navigation.navigate('Assentos', {busSeats: busSeats, trip: response, dataHandler: route.params.dataHandler});
         } else {
           Alert.alert('Aviso', 'Erro na busca!')

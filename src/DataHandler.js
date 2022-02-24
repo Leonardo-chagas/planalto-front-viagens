@@ -11,21 +11,21 @@ class DataHandler {
         this.userID = '';
     };
 
-    getOrigem() {
-        return this.origem;
-    };
+    // getOrigem() {
+    //     return this.origem;
+    // };
 
-    setOrigem(origem){
-        this.origem = origem;
-    };
+    // setOrigem(origem){
+    //     this.origem = origem;
+    // };
 
-    getDestino() {
-        return this.destino;
-    };
+    // getDestino() {
+    //     return this.destino;
+    // };
 
-    setDestino(destino){
-        this.destino = destino;
-    };
+    // setDestino(destino){
+    //     this.destino = destino;
+    // };
 
     getData() {
         return this.data;

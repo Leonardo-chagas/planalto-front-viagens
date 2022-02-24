@@ -63,21 +63,12 @@ const BackButton = styled.TouchableHighlight`
   align-items: center;
 `;
 
-const ButtonSymbol = styled.Text`
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  width: 100%;
-  justify-content: center;
-  padding-left: 10px;
-  padding-top: 10px;
-`;
-
 const Item = styled.Text`
   font-size: 18px;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
+  color: #A4A4A4;
 `;
 
 const ItemArea = styled.View`
@@ -91,54 +82,55 @@ const ItemArea = styled.View`
 `;
 
 const ScreensHeader = styled.View`
-background-color: white;
-display: flex;
-flex-direction: row;
-padding-top: 5px;
-padding-bottom: 5px;
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  padding-top: 5px;
+  padding-bottom: 5px;
 `;
 
 const ScreenArea = styled.TouchableHighlight`
-flex: 1;
-justify-content: center;
-align-items: center;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
 `;
 
 const ScreenText = styled.Text`
-padding-bottom: 3px;
+  padding-bottom: 3px;
+  color: #A4A4A4;
 `;
 
 const VoucherLink = styled.TouchableHighlight`
-width: 50%
-padding-bottom: 10px;
+  width: 50%
+  padding-bottom: 10px;
 `;
 
 const VoucherText = styled.Text`
-color: #088A29;
-font-size: 18px;
-font-weight: bold;
+  color: #088A29;
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 const VoucherArea = styled.Modal`
-background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
 `;
 
 const VoucherAreaBody = styled.TouchableOpacity`
-width: 100%;
-height: 100%;
-background-color: rgba(0, 0, 0, 0.3);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
 `;
 
 const Box = styled.View`
-width: 80%;
-height: 50%
-background-color: white;
-position: absolute;
-left: 10%;
-top: 30%;
-align-items: center;
-justify-content: center;
-padding: 10px;
+  width: 80%;
+  height: 50%
+  background-color: white;
+  position: absolute;
+  left: 10%;
+  top: 30%;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
 `;
 
 const styles = StyleSheet.create({

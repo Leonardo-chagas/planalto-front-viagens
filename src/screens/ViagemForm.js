@@ -241,7 +241,7 @@ export default function ViagemForm({navigation, route}) {
     
               console.log(responseTripVolta.trips);
     
-              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: responseTripVolta, dataHandler: dataHandler})
+              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: responseTripVolta.trips, dataHandler: dataHandler})
             } else {
               console.log(responseTripVolta.message);
               Alert.alert('Aviso','Não foi encontrada nenhuma viagem de volta para esta data');
@@ -270,7 +270,7 @@ export default function ViagemForm({navigation, route}) {
     
               console.log(responseTripVolta.trips);
     
-              navigation.navigate('Viagens', {viagensIda: [], viagensVolta: responseTripVolta, dataHandler: dataHandler})
+              navigation.navigate('Viagens', {viagensIda: [], viagensVolta: responseTripVolta.trips, dataHandler: dataHandler})
             } else {
               Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida ou volta para esta data');
             }

@@ -85,9 +85,11 @@ const LoginText = styled.Text`
 
 export default function Confirmar({navigation, route}) {
 
-  const [origem] = useState(route.params.trip.origin.name);
-  const [destino] = useState(route.params.trip.destination.name);
-  const [data] = useState(route.params.trip.tripdate);
+  console.log(route.params.trip)
+
+  const [origem] = useState(route.params.trip.trip.origin.name);
+  const [destino] = useState(route.params.trip.trip.destination.name);
+  const [data] = useState(route.params.trip.trip.tripdate);
   const [assento] = useState(route.params.dataHandler.getAssento());
 
   const formatarData = (data) => {

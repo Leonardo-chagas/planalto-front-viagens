@@ -149,7 +149,7 @@ export default function Assentos({navigation, route}) {
   const FazerReserva = async (seatName, seatID) => {
     route.params.dataHandler.setAssento(seatName);
     route.params.dataHandler.setAssentoID(seatID);
-    route.params.dataHandler.setViagemID(route.params.trip.id);
+    route.params.dataHandler.setViagemID(route.params.trip.trip.id);
     navigation.navigate('Confirmar', {trip: route.params.trip, dataHandler: route.params.dataHandler});
   }
     
