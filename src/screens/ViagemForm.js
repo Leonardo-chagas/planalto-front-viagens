@@ -221,7 +221,7 @@ export default function ViagemForm({navigation, route}) {
         navigation.navigate('Viagens', {viagens: viagens, origem: origem, destino: destino, dataIda: dataIda})
       }
       else{
-        console.log(json.message);
+        console.log(json);
         alert('Não foi encontrada nenhuma viagem para esta data');
       }
     }
@@ -274,7 +274,9 @@ export default function ViagemForm({navigation, route}) {
             const jsontrip = await reqtrip.json();
             if(jsontrip.success){
               const info = {origin: jsontrip.trip.origin.name,
+                origin_id: jsontrip.trip.origin.id,
                 destination: jsontrip.trip.destination.name,
+                destination_id: jsontrip.trip.destination.id,
                 tripdate: jsontrip.trip.tripdate,
                 transaction_id: item.transaction_id,
                 id: item.id,

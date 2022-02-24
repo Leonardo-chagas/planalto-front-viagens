@@ -78,19 +78,18 @@ export default function TrocarViagem({navigation, route}) {
     const [viagens, setViagens] = useState(route.params.viagens);
     const [origem, setOrigem] = useState(route.params.origem);
     const [destino, setDestino] = useState(route.params.destino);
-    const [dataIda, setDataIda] = useState(route.params.dataIda);
 
-    const SelecionarViagem = async (id, busID) => {
+    const SelecionarViagem = async (trip) => {
       var busSeats = [];
       const req = await fetch('http://34.207.157.190:5000/seat');
       const json = await req.json();
       json.seats.forEach(item => {
-        if(item.bus_id == busID){
+        if(item.bus_id == trip.bus_id){
           busSeats.push(item);
       }
     });
     //busSeats = [1, 2, 3, 4, 5];
-    navigation.navigate('Trocar Assento', {seats: busSeats, origem: origem, destino: destino, dataIda: dataIda, id:id});
+    navigation.navigate('Trocar Assento', {seats: busSeats, origem: origem, destino: destino, id:trip.id});
     }
 
     return (
@@ -108,14 +107,14 @@ export default function TrocarViagem({navigation, route}) {
                     {
                         viagens.map(item=>{
                             return(
-                            <ItemArea onPress={() => ComprarViagem(item.id, item.busID)}
+                            <ItemArea onPress={() => SelecionarViagem(item)}
                             navigator={navigation}
                             underlayColor='#b5b5b5'
                             activeOpacity={0.6}>
                             <View>
-                                <Item>Ida: {item.dataIda}</Item>
+                                <Item>Ida: {item.tripdate}</Item>
                                 <Item>Assentos disponíveis: {32}</Item>
-                                <Item>Preço: R${item.preco}</Item>
+                                <Item>Preço: R${item.price}</Item>
                             </View>
                             </ItemArea>)
                         })

@@ -172,6 +172,12 @@ export default function MinhasViagens({navigation, route}) {
             viagens.push(item);
         }
       })
+      if(viagens){
+        navigation.navigate('Trocar viagem', {viagens: viagens, origem: currentItem.origin, destino: currentItem.destination});
+      }
+      else{
+        alert("Não existe mais nenhuma viagem para esta rota");
+      }
     }
   }
 

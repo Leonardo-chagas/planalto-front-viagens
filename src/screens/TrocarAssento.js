@@ -80,7 +80,6 @@ export default function TrocarAssento({navigation, route}) {
     const [busSeats, setBusSeats] = useState(route.params.seats);
     const [origem, setOrigem] = useState(route.params.origem);
     const [destino, setDestino] = useState(route.params.destino);
-    const [dataIda, setDataIda] = useState(route.params.dataIda);
     const [viagemID, setViagemID] = useState(route.params.id);
 
     var seats = [];
