@@ -146,7 +146,7 @@ export default function Confirmar({navigation, route}) {
         console.log(json);
   
         if(json.success == true){
-          Alert.alert('Aviso','Reserva Confirmada');
+          Alert.alert('Aviso','Reserva Confirmada! O QRCode para pagamento foi enviado para o seu e-mail.');
           navigation.navigate('Pesquisa de Viagens', {dataHandler: route.params.dataHandler})
         } else {
           Alert.alert('Aviso','Erro ao reservar - ' + json.message);

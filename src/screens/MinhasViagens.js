@@ -25,7 +25,7 @@ const HeaderText = styled.Text`
 `;//Titulo da tela
 
 const Button = styled.TouchableHighlight`
-  margin-bottom: 10px;
+  padding: 5px;
   width: 100%;  
 `;
 
@@ -101,7 +101,6 @@ const ScreenText = styled.Text`
 `;
 
 const VoucherLink = styled.TouchableHighlight`
-  width: 50%
   padding-bottom: 10px;
 `;
 
@@ -109,6 +108,7 @@ const VoucherText = styled.Text`
   color: #088A29;
   font-size: 18px;
   font-weight: bold;
+  text-align: center;
 `;
 
 const VoucherArea = styled.Modal`
@@ -123,7 +123,7 @@ const VoucherAreaBody = styled.TouchableOpacity`
 
 const Box = styled.View`
   width: 80%;
-  height: 50%
+  height: 30%
   background-color: white;
   position: absolute;
   left: 10%;
@@ -131,6 +131,7 @@ const Box = styled.View`
   align-items: center;
   justify-content: center;
   padding: 10px;
+  border-radius: 5px;
 `;
 
 const styles = StyleSheet.create({
@@ -147,10 +148,20 @@ export default function MinhasViagens({navigation, route}) {
 
   const [screen, setScreen] = useState(0);
   const [voucherVisible, setVoucherVisible] = useState(false);
-  const [ret, setRet] = useState(route.params.ret)
-  const [dev, setDev] = useState(route.params.dev)
-  const [fin, setFin] = useState(route.params.fin)
+  const [ret] = useState(route.params.ret)
+  const [dev] = useState(route.params.dev)
+  const [fin] = useState(route.params.fin)
   const [currentItem, setCurrentItem] = useState();
+
+  const formatarData = (data) => {
+    let d = new Date (data);
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`
+  }
+
+  const formatarHora = (data) => {
+    let d = new Date (data);
+    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+  }
 
   const ViewVoucher = (item) => {
     setVoucherVisible(true);
@@ -201,9 +212,21 @@ export default function MinhasViagens({navigation, route}) {
     }
   }
 
-  const Voucher = () => {
-    setVoucherVisible(false);
-    navigation.navigate("Voucher");
+  const Voucher = async () => {
+    try {
+      const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + currentItem.trip_id);
+      const jsontrip = await reqtrip.json();
+  
+      if(jsontrip.success){
+        console.log(jsontrip)
+      }
+  
+      setVoucherVisible(false);
+      navigation.navigate("Voucher");
+
+    } catch (error) {
+
+    }
   }
 
   return (
@@ -232,7 +255,7 @@ export default function MinhasViagens({navigation, route}) {
         <VoucherAreaBody onPressOut={()=>setVoucherVisible(false)}>
           <TouchableWithoutFeedback>
             <Box>
-              <Button onPress={() => Voucher()}>
+              <Button onPress={Voucher}>
                 <LoginText>Visualizar Voucher</LoginText>
               </Button>
               <Button onPress={OnPressTrocarViagem}>
@@ -250,10 +273,11 @@ export default function MinhasViagens({navigation, route}) {
           <SearchDropdown>
             {ret.map(item=>{
               return(
-                <ItemArea key={item.id}>
+                <ItemArea key={item.transaction_id}>
                   <Item>{item.origin} ------{'>'} {item.destination}</Item>
-                  <Item>Data: {item.tripdate}</Item>
-                  <Item>Valor Total: R$ {String(item.price)}</Item>
+                  <Item>Data: {formatarData(item.tripdate)}</Item>
+                  <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                  <Item>Valor Total: R$ {item.price.toFixed(2)}</Item>
                   <VoucherLink onPress={()=>ViewVoucher(item)}>
                     <VoucherText>Opções</VoucherText>
                   </VoucherLink>
@@ -268,10 +292,11 @@ export default function MinhasViagens({navigation, route}) {
           <SearchDropdown>
             {dev.map(item=>{
               return(
-                <ItemArea key={item.id}>
-                  <Item>{item.origem} ------{'>'} {item.destino}</Item>
-                  <Item>Data: {item.dataIda}</Item>
-                  <Item>NSU: {item.nsu}</Item>
+                <ItemArea key={item.transaction_id}>
+                  <Item>{item.origin} ------{'>'} {item.destination}</Item>
+                  <Item>Data: {formatarData(item.tripdate)}</Item>
+                  <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                  <Item>Valor Devolvido: R$ {item.price.toFixed(2)}</Item>
                 </ItemArea>
               )})
             }
@@ -283,10 +308,11 @@ export default function MinhasViagens({navigation, route}) {
           <SearchDropdown>
             {fin.map(item=>{
               return(
-                <ItemArea key={item.id}>
-                  <Item>{item.origem} ------{'>'} {item.destino}</Item>
-                  <Item>Data: {item.dataIda}</Item>
-                  <Item>NSU: {item.nsu}</Item>
+                <ItemArea key={item.transaction_id}>
+                  <Item>{item.origin} ------{'>'} {item.destination}</Item>
+                  <Item>Data: {formatarData(item.tripdate)}</Item>
+                  <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                  <Item>Valor Total: R$ {item.price.toFixed(2)}</Item>
                 </ItemArea>
               )})
             }

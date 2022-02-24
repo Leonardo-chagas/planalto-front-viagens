@@ -350,6 +350,8 @@ export default function ViagemForm({navigation, route}) {
     dataHandler.setAccessToken(responseToken.access_token);
     dataHandler.setRefreshToken(responseToken.refresh_token);
 
+    console.log(responseToken.access_token);
+
     const req = await fetch('http://34.207.157.190:5000/reservation/getByuser', {
       method: 'POST',
       body: JSON.stringify({
@@ -364,45 +366,56 @@ export default function ViagemForm({navigation, route}) {
     
     if(json.success){
       json.reservations.forEach(async item => {
-        if(item.user_id == dataHandler.getUserID()){
-          if(item.deleted_at != null){
-            const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
-            const jsontrip = await reqtrip.json();
-            if(jsontrip.success){
-              const info = {origin: jsontrip.trip.origin.name,
+        if(item.deleted_at != null){
+          const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+          const jsontrip = await reqtrip.json();
+          if(jsontrip.success){
+            const info = {
+              origin: jsontrip.trip.origin.name,
               destination: jsontrip.trip.destination.name,
               tripdate: jsontrip.trip.tripdate,
-              transaction_id: item.transaction_id};
-              dev.push(info);
-            }
-          }
-          else if(item.approved){
-            const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
-            const jsontrip = await reqtrip.json();
-            if(jsontrip.success){
-              const info = {origin: jsontrip.trip.origin.name,
-                destination: jsontrip.trip.destination.name,
-                tripdate: jsontrip.trip.tripdate,
-                transaction_id: item.transaction_id};
-              fin.push(info);
-            }
-          }
-          else if(!item.approved){
-            const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
-            const jsontrip = await reqtrip.json();
-            if(jsontrip.success){
-              const info = {origin: jsontrip.trip.origin.name,
-                origin_id: jsontrip.trip.origin.id,
-                destination: jsontrip.trip.destination.name,
-                destination_id: jsontrip.trip.destination.id,
-                tripdate: jsontrip.trip.tripdate,
-                transaction_id: item.transaction_id,
-                id: item.id,
-                price: jsontrip.trip.price};
-              ret.push(info);
-            }
+              price: jsontrip.trip.price,
+              transaction_id: item.transaction_id,
+              trip_id: item.trip_id,
+              seat_id: item.seat_id
+            };
+            dev.push(info);
+            console.log(dev);
           }
         }
+        else if(item.approved){
+          const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+          const jsontrip = await reqtrip.json();
+          const hoje = new Date();
+          if(jsontrip.success){
+            const data = new Date (jsontrip.trip.tripdate);
+            if (data >= hoje) {
+              const info = {
+                origin: jsontrip.trip.origin.name,
+                destination: jsontrip.trip.destination.name,
+                tripdate: jsontrip.trip.tripdate,
+                price: jsontrip.trip.price,
+                transaction_id: item.transaction_id,
+                trip_id: item.trip_id,
+                seat_id: item.seat_id
+              };
+              ret.push(info);
+              console.log(ret);
+            } else {
+              const info = {
+                origin: jsontrip.trip.origin.name,
+                destination: jsontrip.trip.destination.name,
+                tripdate: jsontrip.trip.tripdate,
+                price: jsontrip.trip.price,
+                transaction_id: item.transaction_id,
+                trip_id: item.trip_id,
+                seat_id: item.seat_id
+              };
+              fin.push(info);
+              console.log(fin);
+            }
+          }
+        }       
       })
     }
     console.log(json);
