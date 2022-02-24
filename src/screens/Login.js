@@ -113,7 +113,7 @@ export default function Login({navigation, route}) {
           route.params.dataHandler.setRefreshToken(response.refresh_token);
           route.params.dataHandler.setUserID(response.user.id);
           if(route.params.isBuying == true){
-            navigation.navigate('Confirmar', {dataHandler: route.params.dataHandler});
+            navigation.navigate('Confirmar', {dataHandler: route.params.dataHandler, trip: route.params.trip});
           } else {
             navigation.navigate('Pesquisa de Viagens');
           }
@@ -135,33 +135,22 @@ export default function Login({navigation, route}) {
     if (username !== "") {
 
       try {
-        const request = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-          method: 'POST',
-          headers:{
-            'Content-Type': 'application/json'
-          },
+        const request = await fetch('http://34.207.157.190:5000/reset_password', {
+          method: 'POST', 
           body: JSON.stringify({
-            user_id: "user_7y9VMeaz4iNRQdQIccT2U",
-            service_id: "service_c3jgtc9",
-            template_id: "template_jkts312",
-            accessToken: "610abaf7b813d67ee86184209b5c700e",
-            template_params: {
-              e_mail: username,
-              password: "teste"
-            }
+            email: username 
           })
         })
-
         console.log(request);
 
-        // const response = await request.json();
+        const response = await request.json();
 
-        // console.log(response);
+        console.log(response);
 
-        if(request.status == 200){
-          Alert.alert('Aviso','Email com nova senha enviado!')
+        if(response.success == true){
+          Alert.alert('Aviso', 'Nova senha enviada por e-mail!')
         } else {
-          Alert.alert('Aviso','Erro envio do e-mail. Tente novamente mais tarde!')        
+          Alert.alert('Aviso','Erro na recuperação - ' + response.message);
         }
 
       } catch (error) {

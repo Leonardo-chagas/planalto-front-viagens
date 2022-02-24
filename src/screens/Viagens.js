@@ -67,9 +67,9 @@ const ItemArea = styled.TouchableHighlight`
 
 export default function Viagens({navigation, route}) {
     const [viagensIda] = useState(route.params.viagensIda);
+    const [viagensVolta] = useState(route.params.viagensVolta);
     console.log(viagensIda);
     console.log(viagensVolta);
-    const [viagensVolta] = useState(route.params.viagensVolta);
 
     const formatarData = (data) => {
       let d = new Date (data);
@@ -81,40 +81,26 @@ export default function Viagens({navigation, route}) {
       return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
     }
 
-    const comprarViagemIda = async (idTrip, busID, origemIda, destinoIda, dataIda) => {
-      try {
-        let busSeats = [];
-        const requestSeat = await fetch('http://34.207.157.190:5000/seat');
-  
-        const responseSeat = await requestSeat.json();
-        
-        responseSeat.seats.forEach(item => {
-          if(item.bus_id == busID){
-            busSeats.push(item);
-          }
-        });
-  
-        navigation.navigate('Assentos', {seats: busSeats, idTrip: idTrip, origem: origemIda, destino: destinoIda, data: dataIda, dataHandler: route.params.dataHandler});
-      } catch (error) {
-        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
-        console.log(error);
-      }
-    }
+    const comprarViagem = async (trip) => {
+      console.log("entrei aqui")
+      console.log(trip.id)
+      var busSeats = [];
 
-    const comprarViagemVolta = async (idTrip, busID, origemVolta, destinoVolta, dataVolta) => {
       try {
-        let busSeats = [];
-        const requestSeat = await fetch('http://34.207.157.190:5000/seat');
-  
-        const responseSeat = await requestSeat.json();
-        
-        responseSeat.seats.forEach(item => {
-          if(item.bus_id == busID){
-            busSeats.push(item);
-          }
+        const request = await fetch('http://34.207.157.190:5000/trip/'+trip.id, {
+          method: 'GET'
         });
-  
-        navigation.navigate('Assentos', {seats: busSeats, idTrip: idTrip, origem: origemVolta, destino: destinoVolta, data: dataVolta, dataHandler: route.params.dataHandler});
+      
+        const response = await request.json();
+      
+        if (response.success == true) {
+          busSeats = response.trip.bus.Seats;
+          console.log(busSeats)
+          navigation.navigate('Assentos', {busSeats: busSeats, trip: response.trip, dataHandler: route.params.dataHandler});
+        } else {
+          Alert.alert('Aviso', 'Erro na busca!')
+        }
+    
       } catch (error) {
         Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
         console.log(error);
@@ -134,14 +120,14 @@ export default function Viagens({navigation, route}) {
             <SearchDropdown>
               {viagensIda.map(item=>{
                   return(
-                  <ItemArea key={item.idTrip} onPress={() => comprarViagemIda(item.idTrip, item.busID, item.origemIda, item.destinoIda, item.dataIda)}
+                  <ItemArea key={item.id} onPress={() => comprarViagem(item)}
                     navigator={navigation}
                     underlayColor='#b5b5b5'
                     activeOpacity={0.6}>
                     <View>
-                      <Item>Data: {formatarData(item.dataIda)}</Item>
-                      <Item>Hora: {formatarHora(item.dataIda)}</Item>
-                      <Item>Preço: R${item.preco.toFixed(2)}</Item>
+                      <Item>Data: {formatarData(item.tripdate)}</Item>
+                      <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                      <Item>Preço: R${item.price.toFixed(2)}</Item>
                     </View>
                   </ItemArea>
                 )})
@@ -152,28 +138,28 @@ export default function Viagens({navigation, route}) {
             <SearchDropdown>
               {viagensIda.map(item=>{
                   return(
-                  <ItemArea key={item.idTrip} onPress={() => comprarViagemIda(item.idTrip, item.busID, item.origemIda, item.destinoIda, item.dataIda)}
+                  <ItemArea key={item.id} onPress={() => comprarViagem(item)}
                     navigator={navigation}
                     underlayColor='#b5b5b5'
                     activeOpacity={0.6}>
                     <View>
-                      <Item>Data: {formatarData(item.dataIda)}</Item>
-                      <Item>Hora: {formatarHora(item.dataIda)}</Item>
-                      <Item>Preço: R${item.preco.toFixed(2)}</Item>
+                      <Item>Data: {formatarData(item.tripdate)}</Item>
+                      <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                      <Item>Preço: R${item.price.toFixed(2)}</Item>
                     </View>
                   </ItemArea>
                 )})
               }
               {viagensVolta.map(item=>{
                 return(
-                <ItemArea key={item.idTrip} onPress={() => comprarViagemVolta(item.idTrip, item.busID, item.origemVolta, item.destinoVolta, item.dataVolta)}
+                <ItemArea key={item.id} onPress={() => comprarViagem(item)}
                   navigator={navigation}
                   underlayColor='#b5b5b5'
                   activeOpacity={0.6}>
                   <View>
-                    <Item>Data: {formatarData(item.dataVolta)}</Item>
-                    <Item>Hora: {formatarHora(item.dataVolta)}</Item>
-                    <Item>Preço: R${item.preco.toFixed(2)}</Item>
+                    <Item>Data: {formatarData(item.tripdate)}</Item>
+                    <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                    <Item>Preço: R${item.price.toFixed(2)}</Item>
                   </View>
                 </ItemArea>
               )})

@@ -66,16 +66,10 @@ const Row = styled.View`
 `;
 
 export default function Assentos({navigation, route}) {
-  const [busSeats] = useState(route.params.seats);
-  const [origem] = useState(route.params.origem.name);
-  const [destino] = useState(route.params.destino.name);
-  const [data] = useState(route.params.data);
-  const [idTrip] = useState(route.params.idTrip);
-
   var seats = [];
   var index = 0;
 
-  const seatsLength = busSeats.length;
+  const seatsLength = route.params.busSeats.length;
   
   for(var i=1; i<=Math.ceil(seatsLength/4); i++){
     var quant = 0;
@@ -89,11 +83,11 @@ export default function Assentos({navigation, route}) {
     var row = [];
     var passou = false;
 
-    for(var seat=index*4; seat<index+quant; seat++) {
-      const seatName = busSeats[seat].name;
-      const seatID = busSeats[seat].id;
+    for(var seat = index * 4; seat < index + quant; seat++) {
+      const seatName = route.params.busSeats[seat].name;
+      const seatID = route.params.busSeats[seat].id;
 
-      if(seat == index+2 && !passou) {
+      if(seat == index + 2 && !passou) {
         row.push(
         <View>
           <Text style={{paddingRight:30, paddingLeft:30}}></Text>
@@ -111,22 +105,18 @@ export default function Assentos({navigation, route}) {
     }
 
     seats.push(
-      <Row>
+      <Row key={i}>
         {row}
       </Row>
     );
     index = index+4;
   }
 
-  const FazerReserva = async (assento, assentoID) => {
-    console.log(assento);
-    console.log(assentoID);
-    console.log(origem);
-    console.log(destino);
-    console.log(data);
-    console.log("Aqui!");
-    console.log(route.params.dataHandler.getAccessToken())
-    navigation.navigate('Confirmar', {idTrip: idTrip, origem: origem, destino: destino, data: data, assento: assento, assentoID: assentoID, dataHandler: route.params.dataHandler});
+  const FazerReserva = async (seatName, seatID) => {
+    route.params.dataHandler.setAssento(seatName);
+    route.params.dataHandler.setAssentoID(seatID);
+    route.params.dataHandler.setViagemID(route.params.trip.id);
+    navigation.navigate('Confirmar', {trip: route.params.trip, dataHandler: route.params.dataHandler});
   }
     
   return (

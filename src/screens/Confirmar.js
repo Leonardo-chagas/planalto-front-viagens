@@ -85,17 +85,10 @@ const LoginText = styled.Text`
 
 export default function Confirmar({navigation, route}) {
 
-  route.params.dataHandler.setOrigem(route.params.origem);
-  route.params.dataHandler.setDestino(route.params.destino);
-  route.params.dataHandler.setData(route.params.data);
-  route.params.dataHandler.setAssento(route.params.assento);
-  route.params.dataHandler.setAssentoID(route.params.assentoID);
-  route.params.dataHandler.setViagemID(route.params.idTrip);
-
-  const [origem] = useState(route.params.origem);
-  const [destino] = useState(route.params.destino);
-  const [data] = useState(route.params.data);
-  const [assento] = useState(route.params.assento);
+  const [origem] = useState(route.params.trip.origin.name);
+  const [destino] = useState(route.params.trip.destination.name);
+  const [data] = useState(route.params.trip.tripdate);
+  const [assento] = useState(route.params.dataHandler.getAssento());
 
   const formatarData = (data) => {
     let d = new Date (data);
@@ -110,10 +103,9 @@ export default function Confirmar({navigation, route}) {
   const Confirmar = async () => {
 
     if (route.params.dataHandler.getAccessToken() !== "") {
-      
       try {
         const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
-          method: 'PUT',
+          method: 'POST',
           body: JSON.stringify({
             refresh_token: route.params.dataHandler.getRefreshToken()
           }),
@@ -163,9 +155,8 @@ export default function Confirmar({navigation, route}) {
       }
     } else {
       Alert.alert('Aviso','Para confirmar a reservar você precisa realizar o login!');
-      navigation.navigate('Login', {dataHandler: route.params.dataHandler, isBuying: true});
+      navigation.navigate('Login', {dataHandler: route.params.dataHandler, trip: route.params.trip, isBuying: true});
     }
-    console.log("Aqui confirmando!");
   }
 
   return (

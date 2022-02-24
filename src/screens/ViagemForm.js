@@ -203,55 +203,77 @@ export default function ViagemForm({navigation, route}) {
           const dataArray = dataIda.split('/');
           const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
 
-          const reqTripIda = await fetch('http://34.207.157.190:5000/trip', {method: 'GET'});
+          const reqTripIda = await fetch('http://34.207.157.190:5000/tripByDate', {
+            method: 'POST',
+            body: JSON.stringify({
+              tripdate : dataCerta,
+              origin_id: origem.id,
+              destination_id: destino.id
+            }),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          });
           
           const responseTripIda = await reqTripIda.json();
           console.log(responseTripIda);
   
           if(responseTripIda.success) {
-            let viagensIda = [];
-            var tripsDateIda = responseTripIda.trips.filter(function(item) {
-              if (item.tripdate.toString().toLowerCase().startsWith(dataCerta.toString().toLowerCase())) {
-                return item;
+
+            console.log(responseTripIda.trips);
+
+            const reqTripVolta = await fetch('http://34.207.157.190:5000/tripByDate', {
+              method: 'POST',
+              body: JSON.stringify({
+                tripdate : dataCerta,
+                origin_id: destino.id,
+                destination_id: origem.id
+              }),
+              headers:{
+                'Content-Type': 'application/json'
               }
             });
-  
-            tripsDateIda.forEach(item => {
-              viagensIda.push({dataIda: item.tripdate, origemIda: origem, destinoIda: destino, preco: item.price, idTrip: item.id, busID: item.bus.id});
-            })
-
-            console.log(viagensIda);
-
-            const reqTripVolta = await fetch('http://34.207.157.190:5000/trip', {method: 'GET'});
             
             const responseTripVolta = await reqTripVolta.json();
             console.log(responseTripVolta);
     
             if(responseTripVolta.success) {
-              let viagensVolta = [];
-              var tripsDateVolta = responseTripVolta.trips.filter(function(item) {
-                if (item.tripdate.toString().toLowerCase().startsWith(dataCerta.toString().toLowerCase())) {
-                  return item;
-                }
-              });
     
-              console.log(tripsDateVolta);
+              console.log(responseTripVolta.trips);
     
-              tripsDateVolta.forEach(item => {
-                viagensVolta.push({dataVolta: item.tripdate, origemVolta: destino, destinoVolta: origem, preco: item.price, idTrip: item.id, busID: item.bus.id});
-              })
-
-              console.log(viagensVolta);
-    
-              navigation.navigate('Viagens', {viagensIda: viagensIda, viagensVolta: viagensVolta, dataHandler: dataHandler})
+              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: responseTripVolta, dataHandler: dataHandler})
             } else {
-              console.log(responseTrip.message);
+              console.log(responseTripVolta.message);
               Alert.alert('Aviso','Não foi encontrada nenhuma viagem de volta para esta data');
+              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
             }
 
           } else {
-            console.log(responseTrip.message);
+            console.log(responseTripIda.message);
             Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida para esta data');
+            const reqTripVolta = await fetch('http://34.207.157.190:5000/tripByDate', {
+              method: 'POST',
+              body: JSON.stringify({
+                tripdate : dataCerta,
+                origin_id: destino.id,
+                destination_id: origem.id
+              }),
+              headers:{
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const responseTripVolta = await reqTripVolta.json();
+            console.log(responseTripVolta);
+    
+            if(responseTripVolta.success) {
+    
+              console.log(responseTripVolta.trips);
+    
+              navigation.navigate('Viagens', {viagensIda: [], viagensVolta: responseTripVolta, dataHandler: dataHandler})
+            } else {
+              Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida ou volta para esta data');
+            }
           }
   
         } catch (error) {
@@ -266,32 +288,35 @@ export default function ViagemForm({navigation, route}) {
         try {
           const dataArray = dataIda.split('/');
           const dataCerta = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0];
-          const reqTripIda = await fetch('http://34.207.157.190:5000/trip', {method: 'GET'});
+
+          const reqTripIda = await fetch('http://34.207.157.190:5000/tripByDate', {
+            method: 'POST',
+            body: JSON.stringify({
+              tripdate : dataCerta,
+              origin_id: origem.id,
+              destination_id: destino.id
+            }),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          });
           
+          console.log(JSON.stringify({
+            tripdate : dataCerta,
+            origin_id: origem.id,
+            destination_id: destino.id}))
+
           const responseTripIda = await reqTripIda.json();
-          console.log(dataCerta);
           console.log(responseTripIda);
   
           if(responseTripIda.success) {
-            let viagensIda = [];
-            var tripsDateIda = responseTripIda.trips.filter(function(item) {
-              if (item.tripdate.toString().toLowerCase().startsWith(dataCerta.toString().toLowerCase())) {
-                return item;
-              }
-            });
+
+            console.log(responseTripIda.trips);
   
-            console.log(tripsDateIda);
-  
-            tripsDateIda.forEach(item => {
-              viagensIda.push({dataIda: item.tripdate, origemIda: origem, destinoIda: destino, preco: item.price, idTrip: item.id, busID: item.bus.id});
-            })
-  
-            console.log(viagensIda);
-  
-            navigation.navigate('Viagens', {viagensIda: viagensIda, viagensVolta: [], dataHandler: dataHandler})
+            navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
           }
           else {
-            console.log(responseTrip.message);
+            console.log(responseTripIda.message);
             Alert.alert('Aviso','Não foi encontrada nenhuma viagem para esta data');
           }
   
@@ -306,12 +331,37 @@ export default function ViagemForm({navigation, route}) {
   }
   
   const MinhasViagens = async () => {
-    var ret = [];
-    var dev = [];
-    var fin = [];
+    var ret = []
+    var dev = []
+    var fin = []
 
-    const req = await fetch('http://34.207.157.190:5000/reservation?access_token=' + dataHandler.getAccessToken());
+    const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+      method: 'POST',
+      body: JSON.stringify({
+        refresh_token: dataHandler.getRefreshToken()
+      }),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const responseToken = await requestToken.json();
+    
+    dataHandler.setAccessToken(responseToken.access_token);
+    dataHandler.setRefreshToken(responseToken.refresh_token);
+
+    const req = await fetch('http://34.207.157.190:5000/reservation/getByuser', {
+      method: 'POST',
+      body: JSON.stringify({
+        access_token: dataHandler.getAccessToken()
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
     const json = await req.json();
+    
     if(json.success){
       json.reservations.forEach(async item => {
         if(item.user_id == dataHandler.getUserID()){
