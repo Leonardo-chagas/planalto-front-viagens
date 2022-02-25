@@ -8,7 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DataHandler from '../DataHandler';
 import { LogBox } from 'react-native';
 LogBox.ignoreLogs(['Warning: ...']); 
-// LogBox.ignoreAllLogs();
+LogBox.ignoreAllLogs();
 
 const dataHandler = new DataHandler();
 
