@@ -145,12 +145,14 @@ const styles = StyleSheet.create({
 
 export default function MinhasViagens({navigation, route}) {
 
-  const [screen, setScreen] = useState(0);
+  const [screen, setScreen] = useState();
   const [voucherVisible, setVoucherVisible] = useState(false);
   const [ret, setRet] = useState(route.params.ret)
   const [dev, setDev] = useState(route.params.dev)
   const [fin] = useState(route.params.fin)
   const [currentItem, setCurrentItem] = useState();
+
+  console.log(screen)
 
   const formatarData = (data) => {
     let d = new Date (data);
@@ -288,6 +290,13 @@ export default function MinhasViagens({navigation, route}) {
           </TouchableWithoutFeedback>
         </VoucherAreaBody>
       </VoucherArea>
+      {screen == undefined &&
+        <SearchDropdownArea>
+          <SearchDropdown>
+            <Item>Selecione umas das opções acima para visualizar as viagens correspondentes.</Item>
+          </SearchDropdown>
+        </SearchDropdownArea>
+      }
       {screen == 0 &&
         <SearchDropdownArea>
           <SearchDropdown>

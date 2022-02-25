@@ -381,7 +381,6 @@ export default function ViagemForm({navigation}) {
               id: item.id
             };
             dev.push(info);
-            console.log(dev);
           }
         }
         else if(item.approved){
@@ -404,7 +403,6 @@ export default function ViagemForm({navigation}) {
                 id: item.id
               };
               ret.push(info);
-              console.log(ret);
             } else {
               const info = {
                 rigin: jsontrip.trip.origin.name,
@@ -419,7 +417,6 @@ export default function ViagemForm({navigation}) {
                 id: item.id
               };
               fin.push(info);
-              console.log(fin);
             }
           }
         }       

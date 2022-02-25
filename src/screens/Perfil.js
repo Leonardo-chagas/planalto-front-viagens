@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {Picker} from '@react-native-picker/picker';
 import { StyleSheet, Switch, Alert} from 'react-native';
 import styled from 'styled-components/native';
@@ -145,6 +145,15 @@ const styles = StyleSheet.create({
 });
 
 export default function Cadastro ({navigation, route}) {
+
+  const inputElement = useRef(null);
+
+  useEffect(() => {
+    if (inputElement.current) {
+      inputElement.current.focus();
+    }
+  }, []);
+
   const dataarray = route.params.userData.user.birthdate.split('-');
   const datacerta = dataarray[2] + '/' + dataarray[1] + '/' + dataarray[0];
   const datahoje = new Date();
@@ -251,7 +260,7 @@ export default function Cadastro ({navigation, route}) {
           <SenhaText>Alterar Senha</SenhaText>
         </Button>
         <InputView>
-          <Input value={nome} onChangeText={t=>setNome(t)} placeholder={'Nome completo'}/>
+          <Input ref={inputElement} value={nome} onChangeText={t=>setNome(t)} placeholder={'Nome completo'}/>
         </InputView>
         <InputView>
           <TextInputMask 
