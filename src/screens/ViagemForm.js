@@ -409,7 +409,7 @@ export default function ViagemForm({navigation}) {
               ret.push(info);
             } else {
               const info = {
-                rigin: jsontrip.trip.origin.name,
+                origin: jsontrip.trip.origin.name,
                 origin_id: jsontrip.trip.origin.id,
                 destination: jsontrip.trip.destination.name,
                 destination_id: jsontrip.trip.destination.id,
