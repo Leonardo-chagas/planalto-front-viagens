@@ -561,7 +561,7 @@ export default function ViagemForm({navigation}) {
       </Header>
 
       <Container>
-        <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20}} />
+        <Image source={require('../images/logo.png')} style={{height: 50, width: 330, marginBottom: 20, marginTop: 20}} />
         <Touchable onPress={onPressOrigem}>
         <InputView>
           <Input 
