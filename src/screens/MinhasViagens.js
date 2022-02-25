@@ -148,8 +148,8 @@ export default function MinhasViagens({navigation, route}) {
 
   const [screen, setScreen] = useState(0);
   const [voucherVisible, setVoucherVisible] = useState(false);
-  const [ret] = useState(route.params.ret)
-  const [dev] = useState(route.params.dev)
+  const [ret, setRet] = useState(route.params.ret)
+  const [dev, setDev] = useState(route.params.dev)
   const [fin] = useState(route.params.fin)
   const [currentItem, setCurrentItem] = useState();
 
@@ -195,7 +195,22 @@ export default function MinhasViagens({navigation, route}) {
   }
 
   const OnPressCancelarViagem = async () => {
-    const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
+    const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+      method: 'POST',
+      body: JSON.stringify({
+        refresh_token: route.params.dataHandler.getRefreshToken()
+      }),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const responseToken = await requestToken.json();
+    
+    route.params.dataHandler.setAccessToken(responseToken.access_token);
+    route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+
+    const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.reservation_id, {
       method: 'DELETE',
       body: JSON.stringify({
         access_token: route.params.dataHandler.getAccessToken()
@@ -204,12 +219,21 @@ export default function MinhasViagens({navigation, route}) {
         'Content-Type': 'application/json'
       }
     });
+
     const json = await req.json();
+    
     if(json.success) {
+      let retArray = ret;
+      retArray.splice(ret.indexOf(currentItem), 1);
+      setRet(retArray);
+      let devArray = dev;
+      devArray.push(ret.indexOf(currentItem));
+      setDev(devArray);
       alert('Viagem Cancelada com sucesso');
     } else {
       alert("Não foi possível cancelar a viagem");
     }
+
   }
 
   const Voucher = async () => {
@@ -233,7 +257,6 @@ export default function MinhasViagens({navigation, route}) {
         Alert('Aviso', 'Erro na busca do voucher - ' + jsontrip.message)
       }
   
-
     } catch (error) {
       Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
       console.log(error);

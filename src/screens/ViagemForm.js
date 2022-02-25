@@ -375,6 +375,7 @@ export default function ViagemForm({navigation, route}) {
               destination: jsontrip.trip.destination.name,
               tripdate: jsontrip.trip.tripdate,
               price: jsontrip.trip.price,
+              reservation_id: item.id,
               transaction_id: item.transaction_id,
               trip_id: item.trip_id,
               seat_id: item.seat_id
@@ -395,6 +396,7 @@ export default function ViagemForm({navigation, route}) {
                 destination: jsontrip.trip.destination.name,
                 tripdate: jsontrip.trip.tripdate,
                 price: jsontrip.trip.price,
+                reservation_id: item.id,
                 transaction_id: item.transaction_id,
                 trip_id: item.trip_id,
                 seat_id: item.seat_id
@@ -407,6 +409,7 @@ export default function ViagemForm({navigation, route}) {
                 destination: jsontrip.trip.destination.name,
                 tripdate: jsontrip.trip.tripdate,
                 price: jsontrip.trip.price,
+                reservation_id: item.id,
                 transaction_id: item.transaction_id,
                 trip_id: item.trip_id,
                 seat_id: item.seat_id
