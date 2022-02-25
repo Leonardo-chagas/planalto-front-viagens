@@ -84,10 +84,14 @@ export default function Assentos({navigation, route}) {
   var index = 0;
 
   const seatsLength = route.params.busSeats.length;
+
+  console.log("números de lugares:"+route.params.busSeats.length)
+
+  console.log(2<= Math.ceil(seatsLength/4))
   
-  for(var i=1; i<=Math.ceil(seatsLength/4); i++){
+  for(var i = 1; i <= Math.ceil(seatsLength/4); i++){
     var quant = 0;
-    if(i*4 < seatsLength) {
+    if(i * 4 < seatsLength) {
       quant = 4;
     } else {
       quant = seatsLength-((i-1)*4);
@@ -97,7 +101,7 @@ export default function Assentos({navigation, route}) {
     var row = [];
     var passou = false;
 
-    for(var seat = index * 4; seat < index + quant; seat++) {
+    for(var seat = index; seat < index + quant; seat++) {
       const seatName = route.params.busSeats[seat].name;
       let seatID = route.params.busSeats[seat].id;
       let reserved = false;

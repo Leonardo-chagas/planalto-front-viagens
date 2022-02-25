@@ -63,6 +63,7 @@ const ItemArea = styled.TouchableHighlight`
   border-radius: 10px;
   margin-bottom: 10px;
   background-color: white;
+  padding-left: 10px;
 `;
 
 export default function Viagens({navigation, route}) {
@@ -127,6 +128,7 @@ export default function Viagens({navigation, route}) {
                     underlayColor='#b5b5b5'
                     activeOpacity={0.6}>
                     <View>
+                      <Item>{route.params.origem} ------{'>'} {route.params.destino}</Item>
                       <Item>Data: {formatarData(item.tripdate)}</Item>
                       <Item>Hora: {formatarHora(item.tripdate)}</Item>
                       <Item>Preço: R${item.price.toFixed(2)}</Item>
@@ -145,6 +147,7 @@ export default function Viagens({navigation, route}) {
                     underlayColor='#b5b5b5'
                     activeOpacity={0.6}>
                     <View>
+                      <Item>{route.params.origem} ------{'>'} {route.params.destino}</Item>
                       <Item>Data: {formatarData(item.tripdate)}</Item>
                       <Item>Hora: {formatarHora(item.tripdate)}</Item>
                       <Item>Preço: R${item.price.toFixed(2)}</Item>
@@ -159,6 +162,7 @@ export default function Viagens({navigation, route}) {
                   underlayColor='#b5b5b5'
                   activeOpacity={0.6}>
                   <View>
+                    <Item>{route.params.destino} ------{'>'} {route.params.origem}</Item>
                     <Item>Data: {formatarData(item.tripdate)}</Item>
                     <Item>Hora: {formatarHora(item.tripdate)}</Item>
                     <Item>Preço: R${item.price.toFixed(2)}</Item>

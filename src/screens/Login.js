@@ -139,7 +139,10 @@ export default function Login({navigation, route}) {
           method: 'POST', 
           body: JSON.stringify({
             email: username 
-          })
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
         })
         console.log(request);
 
@@ -172,7 +175,7 @@ export default function Login({navigation, route}) {
         <HeaderText>Login</HeaderText>
       </Header>
       <Container>
-        <Image source={require('../images/logo.png')} style={{height: 60, width: 370, marginBottom: 20}} />
+        <Image source={require('../images/logo.png')} style={{height: 60, width: 370, marginBottom: 20, marginTop: 20}} />
         <InputView>
           <Input value={username} onChangeText={t=>setUsername(t)} placeholder={'E-mail/CPF/CNPJ'}/>
         </InputView>

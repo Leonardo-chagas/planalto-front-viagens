@@ -60,13 +60,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const MenuButton = styled.TouchableHighlight`
   background-color: #088A29;
@@ -115,12 +115,11 @@ const styles = StyleSheet.create({
   }
 });
 
-export default function ViagemForm({navigation, route}) {
+export default function ViagemForm({navigation}) {
   const dia = new Date().getDate();
   const mes = new Date().getMonth()+1;
   const ano = new Date().getFullYear();
-  /* const numeroDia = Number(dia);
-  const numeroMes */
+ 
   var mesReal = mes;
   var diaReal = dia;
   if(mes < 10)
@@ -241,11 +240,11 @@ export default function ViagemForm({navigation, route}) {
     
               console.log(responseTripVolta.trips);
     
-              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: responseTripVolta.trips, dataHandler: dataHandler})
+              navigation.navigate('Viagens', {origem: origem.name, destino: destino.name, viagensIda: responseTripIda.trips, viagensVolta: responseTripVolta.trips, dataHandler: dataHandler})
             } else {
               console.log(responseTripVolta.message);
               Alert.alert('Aviso','Não foi encontrada nenhuma viagem de volta para esta data');
-              navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
+              navigation.navigate('Viagens', {origem: origem.name, destino: destino.name, viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
             }
 
           } else {
@@ -269,7 +268,7 @@ export default function ViagemForm({navigation, route}) {
     
               console.log(responseTripVolta.trips);
               Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida para esta data');
-              navigation.navigate('Viagens', {viagensIda: [], viagensVolta: responseTripVolta.trips, dataHandler: dataHandler})
+              navigation.navigate('Viagens', {origem: origem.name, destino: destino.name, viagensIda: [], viagensVolta: responseTripVolta.trips, dataHandler: dataHandler})
             } else {
               Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida ou volta para esta data');
             }
@@ -312,7 +311,7 @@ export default function ViagemForm({navigation, route}) {
 
             console.log(responseTripIda.trips);
   
-            navigation.navigate('Viagens', {viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
+            navigation.navigate('Viagens', {origem: origem.name, destino: destino.name, viagensIda: responseTripIda.trips, viagensVolta: [], dataHandler: dataHandler})
           }
           else {
             console.log(responseTripIda.message);
@@ -371,7 +370,9 @@ export default function ViagemForm({navigation, route}) {
           if(jsontrip.success){
             const info = {
               origin: jsontrip.trip.origin.name,
+              origin_id: jsontrip.trip.origin.id,
               destination: jsontrip.trip.destination.name,
+              destination_id: jsontrip.trip.destination.id,
               tripdate: jsontrip.trip.tripdate,
               price: jsontrip.trip.price,
               transaction_id: item.transaction_id,
@@ -406,8 +407,10 @@ export default function ViagemForm({navigation, route}) {
               console.log(ret);
             } else {
               const info = {
-                origin: jsontrip.trip.origin.name,
+                rigin: jsontrip.trip.origin.name,
+                origin_id: jsontrip.trip.origin.id,
                 destination: jsontrip.trip.destination.name,
+                destination_id: jsontrip.trip.destination.id,
                 tripdate: jsontrip.trip.tripdate,
                 price: jsontrip.trip.price,
                 transaction_id: item.transaction_id,
@@ -421,11 +424,12 @@ export default function ViagemForm({navigation, route}) {
           }
         }       
       })
-    }
-    console.log(json);
 
-    setMenuVisible(false);
-    navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin, dataHandler: dataHandler})
+      setMenuVisible(false);
+      navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin, dataHandler: dataHandler})
+    } else {
+      Alert.alert('Aviso','Erro ao carregar viagens -  '+json.message);
+    }
   }
 
   const Login = () => {

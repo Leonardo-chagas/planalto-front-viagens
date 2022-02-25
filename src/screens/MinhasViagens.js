@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -16,13 +15,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const Button = styled.TouchableHighlight`
   padding: 5px;
@@ -169,48 +168,56 @@ export default function MinhasViagens({navigation, route}) {
   }
 
   const OnPressTrocarViagem = async () => {
+    setVoucherVisible(false);
     navigation.navigate("Trocar Pesquisa de Viagens", {lastID: currentItem.id, trip: currentItem, dataHandler: route.params.dataHandler});
   }
 
   const OnPressCancelarViagem = async () => {
-    const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
-      method: 'POST',
-      body: JSON.stringify({
-        refresh_token: route.params.dataHandler.getRefreshToken()
-      }),
-      headers:{
-        'Content-Type': 'application/json'
+    try {
+      const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+        method: 'POST',
+        body: JSON.stringify({
+          refresh_token: route.params.dataHandler.getRefreshToken()
+        }),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
+  
+      const responseToken = await requestToken.json();
+      
+      route.params.dataHandler.setAccessToken(responseToken.access_token);
+      route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+  
+      const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
+        method: 'DELETE',
+        body: JSON.stringify({
+          access_token: route.params.dataHandler.getAccessToken()
+        }),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      const json = await req.json();
+      
+      if(json.success) {
+        let retArray = ret;
+        retArray.splice(ret.indexOf(currentItem), 1);
+        setRet(retArray);
+        let devArray = dev;
+        devArray.push(currentItem);
+        setDev(devArray);
+        Alert.alert('Aviso','Viagem Cancelada com sucesso!');
+        setVoucherVisible(false);
+      } else {
+        Alert.alert('Aviso','Não foi possível cancelar a viagem.');
+        setVoucherVisible(false);
+        console.log(json.message);
       }
-    })
-
-    const responseToken = await requestToken.json();
-    
-    route.params.dataHandler.setAccessToken(responseToken.access_token);
-    route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
-
-    const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
-      method: 'DELETE',
-      body: JSON.stringify({
-        access_token: route.params.dataHandler.getAccessToken()
-      }),
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const json = await req.json();
-    
-    if(json.success) {
-      let retArray = ret;
-      retArray.splice(ret.indexOf(currentItem), 1);
-      setRet(retArray);
-      let devArray = dev;
-      devArray.push(ret.indexOf(currentItem));
-      setDev(devArray);
-      alert('Viagem Cancelada com sucesso');
-    } else {
-      alert("Não foi possível cancelar a viagem");
-      console.log(json.message);
+    } catch (error) {
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
     }
 
   }

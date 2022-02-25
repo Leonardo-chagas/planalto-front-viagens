@@ -147,7 +147,105 @@ export default function Confirmar({navigation, route}) {
   
         if(json.success == true){
           Alert.alert('Aviso','Reserva Confirmada! O QRCode para pagamento foi enviado para o seu e-mail.');
-          navigation.navigate('Pesquisa de Viagens', {dataHandler: route.params.dataHandler})
+          route.params.dataHandler.setAssento('');
+          route.params.dataHandler.setAssentoID('');
+          route.params.dataHandler.setViagemID('');
+          var ret = []
+          var dev = []
+          var fin = []
+
+          const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+            method: 'POST',
+            body: JSON.stringify({
+              refresh_token: route.params.dataHandler.getRefreshToken()
+            }),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          })
+
+          const responseToken = await requestToken.json();
+          
+          route.params.dataHandler.setAccessToken(responseToken.access_token);
+          route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+
+          console.log(responseToken.access_token);
+
+          const reqReservation = await fetch('http://34.207.157.190:5000/reservation/getByuser', {
+            method: 'POST',
+            body: JSON.stringify({
+              access_token: route.params.dataHandler.getAccessToken()
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const jsonReservation = await reqReservation.json();
+          
+          if(jsonReservation.success){
+            jsonReservation.reservations.forEach(async item => {
+              if(item.deleted_at != null){
+                const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+                const jsontrip = await reqtrip.json();
+                if(jsontrip.success){
+                  const info = {
+                    origin: jsontrip.trip.origin.name,
+                    destination: jsontrip.trip.destination.name,
+                    tripdate: jsontrip.trip.tripdate,
+                    price: jsontrip.trip.price,
+                    transaction_id: item.transaction_id,
+                    trip_id: item.trip_id,
+                    seat_id: item.seat_id,
+                    id: item.id
+                  };
+                  dev.push(info);
+                  console.log(dev);
+                }
+              }
+              else if(item.approved){
+                const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+                const jsontrip = await reqtrip.json();
+                const hoje = new Date();
+                if(jsontrip.success){
+                  const data = new Date (jsontrip.trip.tripdate);
+                  if (data >= hoje) {
+                    const info = {
+                      origin: jsontrip.trip.origin.name,
+                      origin_id: jsontrip.trip.origin.id,
+                      destination: jsontrip.trip.destination.name,
+                      destination_id: jsontrip.trip.destination.id,
+                      tripdate: jsontrip.trip.tripdate,
+                      price: jsontrip.trip.price,
+                      transaction_id: item.transaction_id,
+                      trip_id: item.trip_id,
+                      seat_id: item.seat_id,
+                      id: item.id
+                    };
+                    ret.push(info);
+                    console.log(ret);
+                  } else {
+                    const info = {
+                      origin: jsontrip.trip.origin.name,
+                      destination: jsontrip.trip.destination.name,
+                      tripdate: jsontrip.trip.tripdate,
+                      price: jsontrip.trip.price,
+                      transaction_id: item.transaction_id,
+                      trip_id: item.trip_id,
+                      seat_id: item.seat_id,
+                      id: item.id
+                    };
+                    fin.push(info);
+                    console.log(fin);
+                  }
+                }
+              }       
+            })
+
+            navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin, dataHandler: route.params.dataHandler})
+          } else {
+            Alert.alert('Aviso','Erro ao carregar viagens -  '+jsonReservation.message);
+          }
         } else {
           Alert.alert('Aviso','Erro ao reservar - ' + json.message);
         }

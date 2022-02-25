@@ -1,8 +1,5 @@
 class DataHandler {
     constructor() {
-        this.origem = '';
-        this.destino = '';
-        this.data = '';
         this.assento = '';
         this.assentoID = '';
         this.viagemID = '';
@@ -10,22 +7,6 @@ class DataHandler {
         this.refreshToken = '';
         this.userID = '';
     };
-
-    // getOrigem() {
-    //     return this.origem;
-    // };
-
-    // setOrigem(origem){
-    //     this.origem = origem;
-    // };
-
-    // getDestino() {
-    //     return this.destino;
-    // };
-
-    // setDestino(destino){
-    //     this.destino = destino;
-    // };
 
     getData() {
         return this.data;

@@ -22,11 +22,14 @@ const InputView = styled.View`
   overflow: hidden;
 `;
 
-const Input = styled.TextInput`
+const Input = styled.TextInput.attrs((props) => ({
+  placeholderTextColor: '#A4A4A4',
+}))`
   height: 40px;
   font-size: 18px;
   overflow: hidden;
   padding: 0;
+  color: #424242;
 `;
 
 const Button = styled.TouchableHighlight`

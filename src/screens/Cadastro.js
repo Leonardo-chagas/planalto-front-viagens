@@ -188,7 +188,7 @@ export default function Cadastro ({navigation, route}) {
             neighbourhood: bairro,
             city: cidade,
             state: estado,
-            enable_sms: isEnabled.toString()
+            enable_sms: isEnabled
           }),
           headers:{
             'Content-Type': 'application/json'
@@ -202,8 +202,8 @@ export default function Cadastro ({navigation, route}) {
         if(response.success == false){
           Alert.alert('Aviso','Erro no cadastro - ' + response.message);
         } else {
-          Alert.alert('Aviso','Cadastro Realizado');
-          navigation.navigate('Login', {dataHandler: route.params.dataHandler});
+          Alert.alert('Aviso','Cadastro realizado com sucesso!');
+          navigation.navigate('Pesquisa de Viagens');
         }
 
       } catch (error) {
