@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -148,8 +148,8 @@ export default function MinhasViagens({navigation, route}) {
 
   const [screen, setScreen] = useState(0);
   const [voucherVisible, setVoucherVisible] = useState(false);
-  const [ret] = useState(route.params.ret)
-  const [dev] = useState(route.params.dev)
+  const [ret, setRet] = useState(route.params.ret)
+  const [dev, setDev] = useState(route.params.dev)
   const [fin] = useState(route.params.fin)
   const [currentItem, setCurrentItem] = useState();
 
@@ -173,7 +173,21 @@ export default function MinhasViagens({navigation, route}) {
   }
 
   const OnPressCancelarViagem = async () => {
-    console.log(currentItem.id);
+    const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+      method: 'POST',
+      body: JSON.stringify({
+        refresh_token: route.params.dataHandler.getRefreshToken()
+      }),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const responseToken = await requestToken.json();
+    
+    route.params.dataHandler.setAccessToken(responseToken.access_token);
+    route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+
     const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
       method: 'DELETE',
       body: JSON.stringify({
@@ -183,13 +197,22 @@ export default function MinhasViagens({navigation, route}) {
         'Content-Type': 'application/json'
       }
     });
+
     const json = await req.json();
+    
     if(json.success) {
+      let retArray = ret;
+      retArray.splice(ret.indexOf(currentItem), 1);
+      setRet(retArray);
+      let devArray = dev;
+      devArray.push(ret.indexOf(currentItem));
+      setDev(devArray);
       alert('Viagem Cancelada com sucesso');
     } else {
       alert("Não foi possível cancelar a viagem");
       console.log(json.message);
     }
+
   }
 
   const Voucher = async () => {
@@ -198,14 +221,24 @@ export default function MinhasViagens({navigation, route}) {
       const jsontrip = await reqtrip.json();
   
       if(jsontrip.success){
-        console.log(jsontrip)
+        console.log(jsontrip.trip)
+
+        const reqseat = await fetch('http://34.207.157.190:5000/seat/' + currentItem.seat_id);
+        const jsonseat = await reqseat.json();
+
+        if (jsonseat.success) {
+          setVoucherVisible(false);
+          navigation.navigate("Voucher", {trip: jsontrip.trip, seat: jsonseat.seat});
+        } else {
+          Alert('Aviso', 'Erro na busca do voucher - ' + jsontrip.message)
+        }
+      } else {
+        Alert('Aviso', 'Erro na busca do voucher - ' + jsontrip.message)
       }
   
-      setVoucherVisible(false);
-      navigation.navigate("Voucher");
-
     } catch (error) {
-
+      Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+      console.log(error);
     }
   }
 
