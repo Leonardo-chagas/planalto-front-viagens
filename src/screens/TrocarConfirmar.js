@@ -1,4 +1,3 @@
-import { StackActions } from '@react-navigation/routers';
 import React, { useState } from 'react';
 import { View, Alert } from 'react-native';
 import styled from 'styled-components/native';

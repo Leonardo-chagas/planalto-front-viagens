@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {Picker} from '@react-native-picker/picker';
 import { StyleSheet, Switch, Alert} from 'react-native';
 import styled from 'styled-components/native';
