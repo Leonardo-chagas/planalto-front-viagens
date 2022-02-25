@@ -67,53 +67,81 @@ flex-direction: row;
 `;
 
 export default function TrocarAssento({navigation, route}) {
-    const [busSeats, setBusSeats] = useState(route.params.seats);
-    const [origem, setOrigem] = useState(route.params.origem);
-    const [destino, setDestino] = useState(route.params.destino);
-    const [viagemID, setViagemID] = useState(route.params.id);
-
+  const [trip] = useState(route.params.trip);
+  const [lastID] = useState(route.params.lastID);
   var seats = [];
   var index = 0;
 
-  const seatsLength = busSeats.length;
-
+  const seatsLength = route.params.busSeats.length;
+  
   for(var i=1; i<=Math.ceil(seatsLength/4); i++){
-      var quant = 0;
-      if(i*4 < seatsLength)
-        quant = 4;
-      else
-        quant = seatsLength-((i-1)*4);
-      console.log(quant);
-      var row = [];
-      var passou = false;
+    var quant = 0;
+    if(i*4 < seatsLength) {
+      quant = 4;
+    } else {
+      quant = seatsLength-((i-1)*4);
+    }
 
-      for(var seat=index*4; seat<index+quant; seat++){
-        
-        const seatName = busSeats[seat].name;
-        const seatID = busSeats[seat].id;
-        if(seat == index+2 && !passou){
-          row.push(<View>
-            <Text style={{paddingRight:30, paddingLeft:30}}></Text>
-          </View>);
-          seat--;
-          passou = true;
+    console.log(quant);
+    var row = [];
+    var passou = false;
+
+    for(var seat = index * 4; seat < index + quant; seat++) {
+      const seatName = route.params.busSeats[seat].name;
+      let seatID = route.params.busSeats[seat].id;
+      let reserved = false;
+
+      if(seat == index + 2 && !passou) {
+        row.push(
+        <View>
+          <Text style={{paddingRight:30, paddingLeft:30}}></Text>
+        </View>
+        );
+        seat--;
+        passou = true;
+      } else {
+        if(trip.reserved_seats){
+        trip.reserved_seats.forEach(item => {
+          console.log(item.seat_id);
+          console.log(seatID);
+          if(parseInt(item.seat_id) == seatID){
+            console.log('passei');
+            reserved = true;
+          }
+        });
+      }
+        if(!reserved){
+          row.push(
+            <Seat key={seatID} onPress={() => FazerReserva(seatName, seatID)}>
+              <Text>{seatName}</Text>
+            </Seat>
+          );
         }
         else{
-          row.push(<Seat onPress={() => FazerReserva(seatName, seatID)}>
-            <Text>{seatName}</Text>
-          </Seat>);
+          row.push(
+          <ReservedSeat key={seatID}>
+              <Text>{seatName}</Text>
+          </ReservedSeat>
+          );
         }
       }
-      seats.push(<Row>
-          {row}
-      </Row>);
-      index = index+4;
+    }
+
+    seats.push(
+      <Row key={i}>
+        {row}
+      </Row>
+    );
+    index = index+4;
   }
 
-  const FazerReserva = async (assento, assentoID) => {
+  const FazerReserva = async (seatName, seatID) => {
     // DataHandler.assento = assento;
     // DataHandler.assentoID = assentoID;
-    navigation.navigate('Trocar Confirmar', {origem: origem, destino: destino, dataIda: dataIda, assento: assento});
+    route.params.dataHandler.setAssento(seatName);
+    route.params.dataHandler.setAssentoID(seatID);
+    route.params.dataHandler.setViagemID(route.params.trip.id);
+    navigation.navigate('Trocar Confirmar', {trip: route.params.trip, dataHandler: route.params.dataHandler, lastID: lastID});
   }
 
   return (

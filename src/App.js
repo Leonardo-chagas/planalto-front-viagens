@@ -15,6 +15,7 @@ import Voucher from './screens/Voucher';
 import Perfil from './screens/Perfil';
 import TrocarAssento from './screens/TrocarAssento';
 import TrocarConfirmar from './screens/TrocarConfirmar';
+import TrocarViagemForm from './screens/TrocarViagemForm';
 import Senha from './screens/Senha';
 
 const Stack = createNativeStackNavigator();
@@ -39,6 +40,9 @@ export default () => {
         <Stack.Screen
         name='Trocar Confirmar'
         component={TrocarConfirmar}/>
+        <Stack.Screen
+        name='Trocar Pesquisa de Viagens'
+        component={TrocarViagemForm}/>
         <Stack.Screen
         name='Voucher'
         component={Voucher}/>

@@ -392,12 +392,15 @@ export default function ViagemForm({navigation, route}) {
             if (data >= hoje) {
               const info = {
                 origin: jsontrip.trip.origin.name,
+                origin_id: jsontrip.trip.origin.id,
                 destination: jsontrip.trip.destination.name,
+                destination_id: jsontrip.trip.destination.id,
                 tripdate: jsontrip.trip.tripdate,
                 price: jsontrip.trip.price,
                 transaction_id: item.transaction_id,
                 trip_id: item.trip_id,
-                seat_id: item.seat_id
+                seat_id: item.seat_id,
+                id: item.id
               };
               ret.push(info);
               console.log(ret);

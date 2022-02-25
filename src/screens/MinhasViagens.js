@@ -169,32 +169,11 @@ export default function MinhasViagens({navigation, route}) {
   }
 
   const OnPressTrocarViagem = async () => {
-    const dia = new Date().getDate();
-    const mes = new Date().getMonth()+1;
-    const ano = new Date().getFullYear();
-    const req = await fetch('http://34.207.157.190:5000/trip');
-    const json = req.json();
-    var viagens = [];
-    if(json.success){
-      json.trips.forEach(item => {
-        const viagemDia = new Date(item.tripdate).getDate();
-        const viagemMes = new Date(item.tripdate).getMonth()+1;
-        const viagemAno = new Date(item.tripdate).getFullYear();
-        if(item.origin.id == currentItem.origin.id && item.destination.id == currentItem.destination.id &&
-          viagemAno >= ano){
-            viagens.push(item);
-        }
-      })
-      if(viagens){
-        navigation.navigate('Trocar viagem', {viagens: viagens, origem: currentItem.origin, destino: currentItem.destination});
-      }
-      else{
-        alert("Não existe mais nenhuma viagem para esta rota");
-      }
-    }
+    navigation.navigate("Trocar Pesquisa de Viagens", {lastID: currentItem.id, trip: currentItem, dataHandler: route.params.dataHandler});
   }
 
   const OnPressCancelarViagem = async () => {
+    console.log(currentItem.id);
     const req = await fetch('http://34.207.157.190:5000/reservation/' + currentItem.id, {
       method: 'DELETE',
       body: JSON.stringify({
@@ -209,6 +188,7 @@ export default function MinhasViagens({navigation, route}) {
       alert('Viagem Cancelada com sucesso');
     } else {
       alert("Não foi possível cancelar a viagem");
+      console.log(json.message);
     }
   }
 
@@ -232,7 +212,7 @@ export default function MinhasViagens({navigation, route}) {
   return (
     <Page>
       <Header>
-        <BackButton onPress={() => navigation.goBack()}
+        <BackButton onPress={() => navigation.navigate("Pesquisa de Viagens", {dataHandler: route.params.dataHandler})}
         underlayColor='#1ab241'>
           <Icon name="arrowleft" color="white" size={25}/>
         </BackButton>

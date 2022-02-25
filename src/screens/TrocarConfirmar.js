@@ -82,28 +82,82 @@ const LoginText = styled.Text`
 `;
 
 export default function TrocarConfirmar({navigation, route}) {
-  const [origem, setOrigem] = useState(route.params.origem);
-  const [destino, setDestino] = useState(route.params.destino);
-  const [dataIda, setDataIda] = useState(route.params.dataIda);
-  const [assento, setAssento] = useState(route.params.assento);
+  const [origem] = useState(route.params.trip.origin.name);
+  const [destino] = useState(route.params.trip.destination.name);
+  const [data] = useState(route.params.trip.tripdate);
+  const [assento] = useState(route.params.dataHandler.getAssento());
+  const [lastID] = useState(route.params.lastID);
 
   const Confirmar = async () => {
-    const req = await fetch('http://34.207.157.190:5000/reservation', {
-        method: 'UPDATE',
+    if (route.params.dataHandler.getAccessToken() !== "") {
+      try {
+        const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+          method: 'POST',
+          body: JSON.stringify({
+            refresh_token: route.params.dataHandler.getRefreshToken()
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        const responseToken = await requestToken.json();
+        
+        route.params.dataHandler.setAccessToken(responseToken.access_token);
+        route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+        
+        console.log(route.params.dataHandler.getAccessToken());
+        console.log(route.params.dataHandler.getViagemID());
+        console.log(route.params.dataHandler.getAssentoID());
+
+        console.log("Entrei aqui")
+
+        const reqdel = await fetch('http://34.207.157.190:5000/reservation/' + lastID, {
+        method: 'DELETE',
         body: JSON.stringify({
-          access_token: DataHandler.token,
-          trip_id: DataHandler.viagemID,
-          seat_id: DataHandler.assentoID
-        }),
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      });
-      const json = await req.json();
-      if(json.success == true){
-        alert('Reserva Confirmada');
-        navigation.dispatch(StackActions.pop(3));
+        access_token: route.params.dataHandler.getAccessToken()
+      }),
+      headers:{
+        'Content-Type': 'application/json'
       }
+    });
+    const jsondel = await reqdel.json();
+
+    if(jsondel.success){
+        const req = await fetch('http://34.207.157.190:5000/reservation', {
+          method: 'POST',
+          body: JSON.stringify({
+            access_token: route.params.dataHandler.getAccessToken(),
+            trip_id: route.params.dataHandler.getViagemID(),
+            seat_id: route.params.dataHandler.getAssentoID()
+          }),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log("Entrei aqui")
+
+        console.log(req);
+        
+        const json = await req.json();
+  
+        console.log(json);
+  
+        if(json.success == true){
+          Alert.alert('Aviso','Reserva Trocada com Sucesso');
+          navigation.navigate('Pesquisa de Viagens', {dataHandler: route.params.dataHandler})
+        } else {
+          Alert.alert('Aviso','Erro ao trocar reserva - ' + json.message);
+        }
+      }
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
+      }
+    } else {
+      Alert.alert('Aviso','Para confirmar a reservar você precisa realizar o login!');
+      navigation.navigate('Login', {dataHandler: route.params.dataHandler, trip: route.params.trip, isBuying: true});
+    }
   }
 
   return (

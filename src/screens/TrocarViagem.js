@@ -66,20 +66,34 @@ const ItemArea = styled.TouchableHighlight`
 
 export default function TrocarViagem({navigation, route}) {
     const [viagens, setViagens] = useState(route.params.viagens);
-    const [origem, setOrigem] = useState(route.params.origem);
-    const [destino, setDestino] = useState(route.params.destino);
+    const [lastID] = useState(route.params.lastID);
+    /* const [origem, setOrigem] = useState(route.params.origem);
+    const [destino, setDestino] = useState(route.params.destino); */
 
     const SelecionarViagem = async (trip) => {
+      console.log("entrei aqui")
+      console.log(trip.id)
       var busSeats = [];
-      const req = await fetch('http://34.207.157.190:5000/seat');
-      const json = await req.json();
-      json.seats.forEach(item => {
-        if(item.bus_id == trip.bus_id){
-          busSeats.push(item);
+
+      try {
+        const request = await fetch('http://34.207.157.190:5000/trip/'+trip.id, {
+          method: 'GET'
+        });
+      
+        const response = await request.json();
+      
+        if (response.success == true) {
+          busSeats = response.trip.bus.Seats;
+          console.log(busSeats)
+          navigation.navigate('Trocar Assento', {busSeats: busSeats, trip: response, dataHandler: route.params.dataHandler});
+        } else {
+          Alert.alert('Aviso', 'Erro na busca!')
+        }
+    
+      } catch (error) {
+        Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
+        console.log(error);
       }
-    });
-    //busSeats = [1, 2, 3, 4, 5];
-    navigation.navigate('Trocar Assento', {seats: busSeats, origem: origem, destino: destino, id:trip.id});
     }
 
     return (
