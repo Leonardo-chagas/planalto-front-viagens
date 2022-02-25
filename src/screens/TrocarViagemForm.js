@@ -3,6 +3,9 @@ import { Image, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import styled from 'styled-components/native';
 import DatePicker from 'react-native-datepicker';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); 
+// LogBox.ignoreAllLogs();
 
 const Page = styled.SafeAreaView`
   flex: 1;

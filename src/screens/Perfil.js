@@ -5,6 +5,9 @@ import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import DatePicker from 'react-native-datepicker';
 import { TextInputMask } from 'react-native-masked-text';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); 
+// LogBox.ignoreAllLogs();
 
 const Page = styled.SafeAreaView`
   flex: 1;

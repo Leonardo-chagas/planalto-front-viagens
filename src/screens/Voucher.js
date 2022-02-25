@@ -3,6 +3,9 @@ import { View } from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import QRCode from 'react-native-qrcode-svg';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); 
+// LogBox.ignoreAllLogs();
 
 const Page = styled.SafeAreaView`
   flex: 1;

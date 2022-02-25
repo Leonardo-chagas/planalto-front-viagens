@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, TouchableWithoutFeedback, View, Alert } from 'react-native';
+import { Image, StyleSheet, View, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import styled from 'styled-components/native';
 import DatePicker from 'react-native-datepicker';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DataHandler from '../DataHandler';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); 
+// LogBox.ignoreAllLogs();
 
 const dataHandler = new DataHandler();
 
@@ -116,6 +119,7 @@ const styles = StyleSheet.create({
 });
 
 export default function ViagemForm({navigation}) {
+
   const dia = new Date().getDate();
   const mes = new Date().getMonth()+1;
   const ano = new Date().getFullYear();

@@ -2,6 +2,9 @@ import React, { useState} from 'react';
 import { View, Text, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); 
+// LogBox.ignoreAllLogs();
 
 const Page = styled.SafeAreaView`
   flex: 1;
