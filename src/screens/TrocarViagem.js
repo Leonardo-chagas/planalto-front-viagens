@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -49,10 +49,11 @@ const BackButton = styled.TouchableHighlight`
 `;
 
 const Item = styled.Text`
-  font-size: 22px;
+  font-size: 20px;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
+  color: #A4A4A4;
 `;
 
 const ItemArea = styled.TouchableHighlight`
@@ -62,15 +63,26 @@ const ItemArea = styled.TouchableHighlight`
   border-radius: 10px;
   margin-bottom: 10px;
   background-color: white;
+  padding-left: 10px;
 `;
 
-export default function TrocarViagem({navigation, route}) {
-    const [viagens, setViagens] = useState(route.params.viagens);
-    const [lastID] = useState(route.params.lastID);
-    /* const [origem, setOrigem] = useState(route.params.origem);
-    const [destino, setDestino] = useState(route.params.destino); */
+export default function Viagens({navigation, route}) {
+    const [viagensIda] = useState(route.params.viagensIda);
+    const [viagensVolta] = useState(route.params.viagensVolta);
+    console.log(viagensIda);
+    console.log(viagensVolta);
 
-    const SelecionarViagem = async (trip) => {
+    const formatarData = (data) => {
+      let d = new Date (data);
+      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`
+    }
+
+    const formatarHora = (data) => {
+      let d = new Date (data);
+      return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+    }
+
+    const comprarViagem = async (trip) => {
       console.log("entrei aqui")
       console.log(trip.id)
       var busSeats = [];
@@ -84,8 +96,10 @@ export default function TrocarViagem({navigation, route}) {
       
         if (response.success == true) {
           busSeats = response.trip.bus.Seats;
-          console.log(busSeats)
-          navigation.navigate('Trocar Assento', {busSeats: busSeats, trip: response, dataHandler: route.params.dataHandler});
+          console.log(busSeats);
+          console.log("Estou aqui!");
+          console.log(response.trip);
+          navigation.navigate('Trocar Assento', {busSeats: busSeats, trip: response, dataHandler: route.params.dataHandler, lastID: route.params.lastID});
         } else {
           Alert.alert('Aviso', 'Erro na busca!')
         }
@@ -97,34 +111,68 @@ export default function TrocarViagem({navigation, route}) {
     }
 
     return (
-        <Page>
-            <Header>
-                <BackButton onPress={() => navigation.goBack()}
-                underlayColor='#1ab241'>
-                    <Icon name="arrowleft" color="white" size={25}/>
-                </BackButton>
-                <HeaderText>Viagens</HeaderText>
-            </Header>
-           
-                <SearchDropdownArea>
-                    <SearchDropdown>
-                    {
-                        viagens.map(item=>{
-                            return(
-                            <ItemArea onPress={() => SelecionarViagem(item)}
-                            navigator={navigation}
-                            underlayColor='#b5b5b5'
-                            activeOpacity={0.6}>
-                            <View>
-                                <Item>Ida: {item.tripdate}</Item>
-                                <Item>Assentos disponíveis: {32}</Item>
-                                <Item>Preço: R${item.price}</Item>
-                            </View>
-                            </ItemArea>)
-                        })
-                    }
-                    </SearchDropdown>
-                </SearchDropdownArea>
-        </Page>
+      <Page>
+        <Header>
+          <BackButton onPress={() => navigation.goBack()} underlayColor='#1ab241'>
+            <Icon name="arrowleft" color="white" size={25}/>
+          </BackButton>
+          <HeaderText>Viagens</HeaderText>
+        </Header>
+        <SearchDropdownArea>
+          {route.params.viagensVolta == "" &&
+            <SearchDropdown>
+              {viagensIda.map(item=>{
+                  return(
+                  <ItemArea key={item.id} onPress={() => comprarViagem(item)}
+                    navigator={navigation}
+                    underlayColor='#b5b5b5'
+                    activeOpacity={0.6}>
+                    <View>
+                      <Item>{route.params.origem} ------{'>'} {route.params.destino}</Item>
+                      <Item>Data: {formatarData(item.tripdate)}</Item>
+                      <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                      <Item>Preço: R${item.price.toFixed(2)}</Item>
+                    </View>
+                  </ItemArea>
+                )})
+              }
+            </SearchDropdown>
+          }
+          {route.params.viagensVolta != "" &&
+            <SearchDropdown>
+              {viagensIda.map(item=>{
+                  return(
+                  <ItemArea key={item.id} onPress={() => comprarViagem(item)}
+                    navigator={navigation}
+                    underlayColor='#b5b5b5'
+                    activeOpacity={0.6}>
+                    <View>
+                      <Item>{route.params.origem} ------{'>'} {route.params.destino}</Item>
+                      <Item>Data: {formatarData(item.tripdate)}</Item>
+                      <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                      <Item>Preço: R${item.price.toFixed(2)}</Item>
+                    </View>
+                  </ItemArea>
+                )})
+              }
+              {viagensVolta.map(item=>{
+                return(
+                <ItemArea key={item.id} onPress={() => comprarViagem(item)}
+                  navigator={navigation}
+                  underlayColor='#b5b5b5'
+                  activeOpacity={0.6}>
+                  <View>
+                    <Item>{route.params.destino} ------{'>'} {route.params.origem}</Item>
+                    <Item>Data: {formatarData(item.tripdate)}</Item>
+                    <Item>Hora: {formatarHora(item.tripdate)}</Item>
+                    <Item>Preço: R${item.price.toFixed(2)}</Item>
+                  </View>
+                </ItemArea>
+              )})
+              }
+            </SearchDropdown>
+          }
+        </SearchDropdownArea>
+      </Page>
     );
 }

@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
 });
 
 export default function TrocarViagemForm({navigation, route}) {
-  const [lastID] = useState(route.params.lastID);
   const [trip] = useState(route.params.trip);
 
   const dia = new Date().getDate();
@@ -135,7 +134,7 @@ export default function TrocarViagemForm({navigation, route}) {
           if(responseTrip.success) {
 
             console.log(responseTrip.trips);
-            navigation.navigate('Viagens', {origem: trip.origin, destino: trip.destination, viagensIda: responseTrip.trips, viagensVolta: [], dataHandler: route.params.dataHandler})
+            navigation.navigate('Trocar Viagem', {origem: trip.origin, destino: trip.destination, viagensIda: responseTrip.trips, viagensVolta: [], dataHandler: route.params.dataHandler, lastID: route.params.lastID})
           } else {
             console.log(responseTrip.message);
             Alert.alert('Aviso','Não foi encontrada nenhuma viagem nesta data');

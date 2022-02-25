@@ -1,15 +1,14 @@
 import { StackActions } from '@react-navigation/routers';
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import styled from 'styled-components/native';
-import DataHandler from '../DataHandler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Page = styled.SafeAreaView`
   flex: 1;
   background-color: #F2F2F2;
   align-items: center;
-`;//Area que contem os elementos da tela
+`;
 
 const Header = styled.View`
   width: 100%;
@@ -17,13 +16,13 @@ const Header = styled.View`
   height: 50px;
   align-items: flex-start;
   flex-direction: row;
-`;//Area que contem o titulo da tela
+`;
 
 const HeaderText = styled.Text`
   color: white;
   font-size: 22px;
   padding: 10px;
-`;//Titulo da tela
+`;
 
 const SearchDropdownArea = styled.ScrollView`
   position: absolute;
@@ -51,10 +50,12 @@ const BackButton = styled.TouchableHighlight`
 `;
 
 const Item = styled.Text`
-  font-size: 22px;
+  padding-left: 15px;
+  font-size: 20px;
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
+  color: #A4A4A4;
 `;
 
 const ItemArea = styled.TouchableHighlight`
@@ -69,7 +70,8 @@ const ItemArea = styled.TouchableHighlight`
 const Button = styled.TouchableHighlight`
   margin-bottom: 10px;
   margin-left: 25px;
-  width: 85%;  
+  width: 85%;
+  margin-top: 15px;
 `;
 
 const LoginText = styled.Text`
@@ -81,14 +83,27 @@ const LoginText = styled.Text`
   text-align: center;
 `;
 
-export default function TrocarConfirmar({navigation, route}) {
-  const [origem] = useState(route.params.trip.origin.name);
-  const [destino] = useState(route.params.trip.destination.name);
-  const [data] = useState(route.params.trip.tripdate);
+export default function Confirmar({navigation, route}) {
+
+  console.log(route.params.trip)
+
+  const [origem] = useState(route.params.trip.trip.origin.name);
+  const [destino] = useState(route.params.trip.trip.destination.name);
+  const [data] = useState(route.params.trip.trip.tripdate);
   const [assento] = useState(route.params.dataHandler.getAssento());
-  const [lastID] = useState(route.params.lastID);
+
+  const formatarData = (data) => {
+    let d = new Date (data);
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`
+  }
+
+  const formatarHora = (data) => {
+    let d = new Date (data);
+    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+  }
 
   const Confirmar = async () => {
+
     if (route.params.dataHandler.getAccessToken() !== "") {
       try {
         const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
@@ -111,19 +126,6 @@ export default function TrocarConfirmar({navigation, route}) {
         console.log(route.params.dataHandler.getAssentoID());
 
         console.log("Entrei aqui")
-
-        const reqdel = await fetch('http://34.207.157.190:5000/reservation/' + lastID, {
-        method: 'DELETE',
-        body: JSON.stringify({
-        access_token: route.params.dataHandler.getAccessToken()
-      }),
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    });
-    const jsondel = await reqdel.json();
-
-    if(jsondel.success){
         const req = await fetch('http://34.207.157.190:5000/reservation', {
           method: 'POST',
           body: JSON.stringify({
@@ -144,18 +146,136 @@ export default function TrocarConfirmar({navigation, route}) {
         console.log(json);
   
         if(json.success == true){
-          Alert.alert('Aviso','Reserva Trocada com Sucesso');
-          navigation.navigate('Pesquisa de Viagens', {dataHandler: route.params.dataHandler})
+          Alert.alert('Aviso','Troca Confirmada! O QRCode para pagamento foi enviado para o seu e-mail.');
+          route.params.dataHandler.setAssento('');
+          route.params.dataHandler.setAssentoID('');
+          route.params.dataHandler.setViagemID('');
+      
+          const reqCancel = await fetch('http://34.207.157.190:5000/reservation/' + route.params.lastID, {
+            method: 'DELETE',
+            body: JSON.stringify({
+              access_token: route.params.dataHandler.getAccessToken()
+            }),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          });
+  
+          const jsonCancel = await reqCancel.json();
+          
+          if(jsonCancel.success) {
+            console.log("Viagem Cancelada")
+          } else {
+            Alert.alert('Aviso','Não foi possível cancelar a viagem. Entre em contato com o nosso suporte!');
+            setVoucherVisible(false);
+          }
+
+          var ret = []
+          var dev = []
+          var fin = []
+
+          const requestToken = await fetch('http://34.207.157.190:5000/refresh', {
+            method: 'POST',
+            body: JSON.stringify({
+              refresh_token: route.params.dataHandler.getRefreshToken()
+            }),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          })
+
+          const responseToken = await requestToken.json();
+          
+          route.params.dataHandler.setAccessToken(responseToken.access_token);
+          route.params.dataHandler.setRefreshToken(responseToken.refresh_token);
+
+          console.log(responseToken.access_token);
+
+          const reqReservation = await fetch('http://34.207.157.190:5000/reservation/getByuser', {
+            method: 'POST',
+            body: JSON.stringify({
+              access_token: route.params.dataHandler.getAccessToken()
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const jsonReservation = await reqReservation.json();
+          
+          if(jsonReservation.success){
+            jsonReservation.reservations.forEach(async item => {
+              if(item.deleted_at != null){
+                const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+                const jsontrip = await reqtrip.json();
+                if(jsontrip.success){
+                  const info = {
+                    origin: jsontrip.trip.origin.name,
+                    destination: jsontrip.trip.destination.name,
+                    tripdate: jsontrip.trip.tripdate,
+                    price: jsontrip.trip.price,
+                    transaction_id: item.transaction_id,
+                    trip_id: item.trip_id,
+                    seat_id: item.seat_id,
+                    id: item.id
+                  };
+                  dev.push(info);
+                  console.log(dev);
+                }
+              }
+              else if(item.approved){
+                const reqtrip = await fetch('http://34.207.157.190:5000/trip/' + item.trip_id);
+                const jsontrip = await reqtrip.json();
+                const hoje = new Date();
+                if(jsontrip.success){
+                  const data = new Date (jsontrip.trip.tripdate);
+                  if (data >= hoje) {
+                    const info = {
+                      origin: jsontrip.trip.origin.name,
+                      origin_id: jsontrip.trip.origin.id,
+                      destination: jsontrip.trip.destination.name,
+                      destination_id: jsontrip.trip.destination.id,
+                      tripdate: jsontrip.trip.tripdate,
+                      price: jsontrip.trip.price,
+                      transaction_id: item.transaction_id,
+                      trip_id: item.trip_id,
+                      seat_id: item.seat_id,
+                      id: item.id
+                    };
+                    ret.push(info);
+                    console.log(ret);
+                  } else {
+                    const info = {
+                      origin: jsontrip.trip.origin.name,
+                      destination: jsontrip.trip.destination.name,
+                      tripdate: jsontrip.trip.tripdate,
+                      price: jsontrip.trip.price,
+                      transaction_id: item.transaction_id,
+                      trip_id: item.trip_id,
+                      seat_id: item.seat_id,
+                      id: item.id
+                    };
+                    fin.push(info);
+                    console.log(fin);
+                  }
+                }
+              }       
+            })
+
+
+            navigation.navigate('Minhas Viagens',{ret: ret, dev: dev, fin: fin, dataHandler: route.params.dataHandler})
+          } else {
+            Alert.alert('Aviso','Erro ao carregar viagens -  ' + jsonReservation.message);
+          }
         } else {
-          Alert.alert('Aviso','Erro ao trocar reserva - ' + json.message);
+          Alert.alert('Aviso','Erro ao trocar - ' + json.message);
         }
-      }
       } catch (error) {
         Alert.alert('Aviso','Erro interno do servidor! Tente novamente mais tarde.');
         console.log(error);
       }
     } else {
-      Alert.alert('Aviso','Para confirmar a reservar você precisa realizar o login!');
+      Alert.alert('Aviso','Para confirmar a troca você precisa realizar o login!');
       navigation.navigate('Login', {dataHandler: route.params.dataHandler, trip: route.params.trip, isBuying: true});
     }
   }
@@ -167,22 +287,23 @@ export default function TrocarConfirmar({navigation, route}) {
           <Icon name="arrowleft" color="white" size={25}/>
         </BackButton>
         <HeaderText>Confirmação de Reserva</HeaderText>
-      </Header> 
-      <SearchDropdownArea>
-        <SearchDropdown>
-          <ItemArea>
-            <View>
-              <Item>Origem: {origem}</Item>
-              <Item>Destino: {destino}</Item>
-              <Item>Data: {dataIda}</Item>
-              <Item>Assento: {assento}</Item>
-              <Button onPress={() => Confirmar()}>
-                <LoginText>Confirmar</LoginText>
-              </Button>
-            </View>
-          </ItemArea>
-        </SearchDropdown>
-      </SearchDropdownArea>
+      </Header>
+        <SearchDropdownArea>
+          <SearchDropdown>
+            <ItemArea>
+              <View>
+                <Item>Origem: {origem}</Item>
+                <Item>Destino: {destino}</Item>
+                <Item>Data: {formatarData(data)}</Item>
+                <Item>Hora: {formatarHora(data)}</Item>
+                <Item>Assento: {assento}</Item>
+              </View>
+            </ItemArea>
+            <Button onPress={() => Confirmar()}>
+              <LoginText>Confirmar</LoginText>
+            </Button>
+          </SearchDropdown>
+        </SearchDropdownArea>
     </Page>
   );
 }
