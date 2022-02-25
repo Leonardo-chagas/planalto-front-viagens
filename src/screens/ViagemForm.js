@@ -250,7 +250,6 @@ export default function ViagemForm({navigation, route}) {
 
           } else {
             console.log(responseTripIda.message);
-            Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida para esta data');
             const reqTripVolta = await fetch('http://34.207.157.190:5000/tripByDate', {
               method: 'POST',
               body: JSON.stringify({
@@ -269,7 +268,7 @@ export default function ViagemForm({navigation, route}) {
             if(responseTripVolta.success) {
     
               console.log(responseTripVolta.trips);
-    
+              Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida para esta data');
               navigation.navigate('Viagens', {viagensIda: [], viagensVolta: responseTripVolta.trips, dataHandler: dataHandler})
             } else {
               Alert.alert('Aviso','Não foi encontrada nenhuma viagem de ida ou volta para esta data');
